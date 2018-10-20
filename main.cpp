@@ -1,5 +1,5 @@
-#include "Implementations/hashslot.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "Implementations/HashSlot.h"
 #include <iostream>
 using namespace std;
 
