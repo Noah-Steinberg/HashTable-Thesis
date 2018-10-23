@@ -10,15 +10,18 @@ template<class K, class E>
 
 class HashSlot
 {
-    int hash;
+    unsigned int hash;
     K key;
     E element;
 
 public:
-    HashSlot(int hash, K key, E element);
+    HashSlot(unsigned int hash, K key, E element);
     int get_hash();
     K   get_key();
     E   get_element();
+    void set_hash(unsigned int hash);
+    void set_key(K key);
+    void set_element(E element);
 };
 
 #include "HashSlot.tpp"

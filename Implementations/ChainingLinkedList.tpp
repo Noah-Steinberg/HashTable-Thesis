@@ -5,5 +5,5 @@
 #include "ChainingLinkedList.h"
 template<class K, class E>
 int ChainingLinkedList<K,E>::find_slot(K key, HashSlot<K, E> *slotReturn, int *index) {
-    return 0;
+    return -1;
 }
