@@ -8,14 +8,13 @@
 #include "../HashFunctions/HashFunction.h"
 #include "HashSlot.h"
 
-template<typename K, typename E>
-class HashTable
-{
-    HashTable() = default;
+template<class K, class E>
+class HashTable {
+    HashTable(unsigned int numSlots, HashFunction<K> get_hash);
     HashSlot<K,E>**  slots;
     int         numSlots;
     HashFunction<K> get_hash;
-    virtual int find_slot(K key, HashSlot<K,E>* slotReturn, int* index) = 0;
+    virtual int get_slot(K key, HashSlot<K,E>* slotReturn, int* index, bool createSlot) = 0;
 
 public:
     int get_element(K key, E* element);
