@@ -7,9 +7,7 @@
 
 
 template<class K, class E>
-
-class HashSlot
-{
+class HashSlot {
     unsigned int hash;
     K key;
     E element;

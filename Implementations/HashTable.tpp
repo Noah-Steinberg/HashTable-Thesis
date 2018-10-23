@@ -3,13 +3,17 @@
 //
 
 #include "HashTable.h"
-
+template<class K, class E>
 HashTable::HashTable(unsigned int numSlots, HashFunction<K> get_hash) {
     this->numSlots = numSlots;
     this->get_hash = get_hash;
-    this->slots = malloc(sizeof(HashSlot) * numSlots);
+    this->slots = malloc(sizeof(HashNode*) * numSlots);
 }
 
+template<class K, class E>
+HashTable::~HashTable(){
+    free(this->slots);
+}
 
 template<class K, class E>
 int HashTable::get_element(K key, E *element) {

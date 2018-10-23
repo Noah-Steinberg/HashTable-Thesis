@@ -7,9 +7,13 @@
 
 
 #include "HashTable.h"
+#include "../Util/HashNode.h"
+
 template<class K, class E>
 class ChainingLinkedList : HashTable<K,E> {
-    int find_slot(K key, HashSlot<K,E> * slotReturn, int* index);
+    ChainingLinkedList(unsigned int numSlots, HashFunction<K> get_hash);
+    HashNode<K,E>  slots;
+    int get_slot(K key, HashSlot<K,E>* slotReturn, int* index, bool createSlot);
 };
 
 #include "ChainingLinkedList.tpp"
