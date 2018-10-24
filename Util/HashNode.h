@@ -10,12 +10,13 @@
 
 template<class K, class E>
 class HashNode {
-    HashNode(HashSlot<K,E>* data);
-    HashNode(HashNode<K,E>* next, HashSlot<K,E>* data);
     HashNode<K,E>* next;
     HashSlot<K,E>* data;
 
 public:
+    HashNode();
+    HashNode(HashSlot<K,E>* data);
+    HashNode(HashNode<K,E>* next, HashSlot<K,E>* data);
     HashNode<K,E>* get_next();
     HashSlot<K,E>* get_data();
     void set_next(HashNode<K,E>* node);
