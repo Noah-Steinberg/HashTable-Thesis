@@ -2,8 +2,16 @@
 // Created by nnstein on 20/10/18.
 //
 
+
 template<class K, class E>
-HashSlot<K,E>::HashSlot(unsigned int hash, K key, E element) {
+HashSlot<K,E>::HashSlot() {
+    this->hash = 0;
+    this->key = nullptr;
+    this->element = nullptr;
+}
+
+template<class K, class E>
+HashSlot<K,E>::HashSlot(unsigned hash, K* key, E* element) {
     this->hash = hash;
     this->key = key;
     this->element = element;
@@ -15,26 +23,26 @@ int HashSlot<K,E>::get_hash() {
 }
 
 template<class K, class E>
-K HashSlot<K,E>::get_key() {
+K* HashSlot<K,E>::get_key() {
     return this->key;
 }
 
 template<class K, class E>
-E HashSlot<K,E>::get_element() {
+E* HashSlot<K,E>::get_element() {
     return this->element;
 }
 
 template<class K, class E>
-void HashSlot<K,E>::set_hash(unsigned int hash ) {
+void HashSlot<K,E>::set_hash(unsigned hash ) {
     this->hash = hash;
 }
 
 template<class K, class E>
-void HashSlot<K,E>::set_key(K key) {
+void HashSlot<K,E>::set_key(K* key) {
     this->key = key;
 }
 
 template<class K, class E>
-void HashSlot<K,E>::set_element(E element) {
+void HashSlot<K,E>::set_element(E* element) {
     this->element = element;
 }

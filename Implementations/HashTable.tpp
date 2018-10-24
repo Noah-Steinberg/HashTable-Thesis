@@ -4,50 +4,57 @@
 
 #include "HashTable.h"
 template<class K, class E>
-HashTable::HashTable(unsigned int numSlots, HashFunction<K> get_hash) {
+HashTable<K,E>::HashTable(unsigned numSlots, Hash* hash) {
     this->numSlots = numSlots;
-    this->get_hash = get_hash;
-    this->slots = malloc(sizeof(HashNode*) * numSlots);
+    this->hash = hash;
+    this->slots = new HashSlot<K,E> *[numSlots];
 }
 
 template<class K, class E>
-HashTable::~HashTable(){
+HashTable<K,E>::~HashTable(){
     free(this->slots);
 }
 
 template<class K, class E>
-int HashTable::get_element(K key, E *element) {
+int HashTable<K,E>::get_element(K* key, E **element) {
     int retval = 0;
-    HashSlot<K,E>* slot = NULL;
-
-    retval = this->find_slot(key, slot, NULL);
-    element = slot->get_element();
-    return retval
+    unsigned hash;
+    auto slot = new HashSlot<K,E>();
+    hash = this->hash->digest((void*) key);
+    retval = this->get_slot(hash, key, slot, nullptr, true);
+    if(slot->get_element()==nullptr){
+        *element=nullptr;
+    }
+    else{
+        *element = slot->get_element();
+    }
+    return retval;
 }
 
 template<class K, class E>
-int HashTable::insert_element(K key, E element, bool update) {
+int HashTable<K,E>::insert_element(K* key, E* element, bool update) {
     int retval = 0;
-    unsigned int hash;
-    HashSlot<K,E>* slot = NULL;
+    unsigned hash;
+    auto slot = new HashSlot<K,E>();
+    hash = this->hash->digest((void*) key);
+    retval = this->get_slot(hash, key, slot, nullptr, true);
 
-    retval = this->find_slot(key, slot, NULL, true);
-    if(retval == KEY_NOT_FOUND){
-        hash = this->get_hash(key);
+    if(retval == KEY_NOT_FOUND || (retval==0 && update)){
         slot->set_hash(hash);
         slot->set_key(key);
         slot->set_element(element);
     }
-    return retval
+    return retval;
 }
 
 template<class K, class E>
-int HashTable::remove_element(K key, E *element) {
+int HashTable<K,E>::remove_element(K* key, E** element) {
     int retval = 0;
-    unsigned int hash;
-    HashSlot<K,E>* slot = NULL;
+    unsigned hash;
+    auto slot = new HashSlot<K,E>();
+    hash = this->hash->digest((void*) &key);
 
-    retval = this->find_slot(key, slot, NULL, true);
+    retval = this->get_slot(hash, key, slot, nullptr, true);
     if(retval != KEY_NOT_FOUND){
         /*
          * Sets key and element to null
@@ -55,10 +62,10 @@ int HashTable::remove_element(K key, E *element) {
          * Some tables will need to override depending on implementation
          * Some tables will need to have a dedicated remove_slot to handle logic
          */
-        hash = this->get_hash(key);
+        hash = this->hash->digest((void*) key);
         slot->set_hash(hash);
-        slot->set_key(NULL);
-        slot->set_element(NULL);
+        slot->set_key(nullptr);
+        slot->set_element(nullptr);
     }
-    return retval
+    return retval;
 }
