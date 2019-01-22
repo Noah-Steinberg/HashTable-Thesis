@@ -7,5 +7,6 @@
 
 #define KEY_NOT_FOUND -1
 #define KEY_ALREADY_EXISTS -2
+#define INVALID_ARGS -3
 
 #endif //HASHTABLE_THESIS_ENUMS_H

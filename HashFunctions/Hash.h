@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <functional>
 using namespace std;
-
+template<class K>
 class Hash{
     unsigned seed = 0;
     size_t digestSize = 0;
@@ -19,8 +19,8 @@ public:
         this->seed = seed;
         this->digestSize = digestSize;
     }
-    unsigned digest(void* data){
-        return *(unsigned*) data;
+    unsigned digest(K data){
+        return (unsigned) data;
     }
 };
 
