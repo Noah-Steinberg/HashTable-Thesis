@@ -2,34 +2,29 @@
 // Created by nnstein on 20/10/18.
 //
 
-#include "../ChainingLinkedList/BasicChainingLinkedList.h"
+#include "BasicChainingBST.h"
+using namespace std;
 
 template<class K, class E>
-ChainingLinkedList<K,E>::ChainingLinkedList(unsigned numSlots, Hash<K> hash) {
+BasicChainingBST<K,E>::BasicChainingBST(unsigned numSlots, Hash<K> hash) {
     this->numSlots = numSlots;
     this->hash = hash;
-    this->slots = std::vector<std::forward_list<HashSlot<K,E>>>(numSlots);
+    this->slots = vector<BSTTree<K,E>>(numSlots);
 }
 
 template<class K, class E>
-int ChainingLinkedList<K,E>::get_slot(unsigned hash, const K &key, HashSlot<K,E> &slotReturn,
-        std::unique_ptr<int> index, bool createSlot) {
+int BasicChainingBST<K,E>::get_slot(unsigned hash, K &key, shared_ptr<HashSlot<K,E>> &slotReturn, bool createSlot) {
 
     hash = hash % this->numSlots;
 
-    for (auto const& ele: this->slots[hash]){
-        if(ele.get_key()==key){
-            if(createSlot){
-                return KEY_ALREADY_EXISTS;
-            }
-            slotReturn = ele;
-            return 0;
-        }
-    }
+    int ret = this->slots[hash].get(key, slotReturn);
 
-    if(createSlot){
-        this->slots[hash].push_front(slotReturn);
+    if(createSlot && ret==0){
+        return KEY_ALREADY_EXISTS;
     }
-    return KEY_NOT_FOUND;
+    else if(createSlot && ret==KEY_NOT_FOUND){
+        this->slots[hash].insert(slotReturn);
+    }
+    return ret;
 
 }

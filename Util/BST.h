@@ -19,14 +19,12 @@ class BSTNode {
     shared_ptr<HashSlot<K,E>> data;
     shared_ptr<BSTNode<K,E>> left;
     shared_ptr<BSTNode<K,E>> right;
-    bool deleted;
 
 public:
     explicit BSTNode(shared_ptr<HashSlot<K,E>> data){
         this->data = data;
         this->left = nullptr;
         this->right = nullptr;
-        this->deleted = false;
     }
 
     void set_left(shared_ptr<BSTNode<K, E>> left){
@@ -34,9 +32,6 @@ public:
     }
     void set_right(shared_ptr<BSTNode<K, E>> right){
         this->right.swap(right);
-    }
-    void mark_deleted(){
-        this->deleted=true;
     }
 
     shared_ptr<BSTNode<K,E>> get_left(){
@@ -49,12 +44,8 @@ public:
         return this->data;
     }
     K get_val(){
-        return this->data->get_element();
+        return this->data->get_key();
     }
-    bool is_deleted(){
-        return this->deleted;
-    }
-
 
 };
 
@@ -70,7 +61,6 @@ public:
     int insert(shared_ptr<HashSlot<K,E>>);
     int remove(K key);
     int get(K key, shared_ptr<HashSlot<K,E>>&);
-    int mark_deleted(K key);
 };
 #include "BST.tpp"
 #endif //HASHTABLE_THESIS_BST_H

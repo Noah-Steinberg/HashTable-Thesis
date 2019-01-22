@@ -2,6 +2,7 @@
 #include "Util/HashSlot.h"
 #include "HashFunctions/Hash.h"
 #include "Implementations/ChainingLinkedList/BasicChainingLinkedList.h"
+#include "Implementations/ChainingBST/BasicChainingBST.h"
 #include "Util/BST.h"
 #include <iostream>
 
@@ -29,8 +30,8 @@ int main(){
     vector<unsigned> numbers(start, end);
     cout << "Read " << numbers.size() << " numbers" << endl;
 
-    /*
-    auto table = ChainingLinkedList<unsigned,unsigned>(100, Hash<unsigned>());
+
+    auto table = BasicChainingBST<unsigned,unsigned>(100, Hash<unsigned>());
     for(int i=0; i<1000;++i){
         ostringstream os;
         os << "Inserting element " << numbers[i];
@@ -38,11 +39,12 @@ int main(){
         key = numbers[i];
         element = numbers[i];
         table.insert_element(key, element);
-        unique_ptr<unsigned> ele;
+        shared_ptr<unsigned> ele;
         table.get_element(key, ele);
         logger->info(*ele);
     }
-    */
+
+    /*
     vector<unsigned> toRemove;
     auto BST = BSTTree<unsigned,unsigned>();
     for(int i=0; i<1000;++i)
@@ -84,5 +86,6 @@ int main(){
         }
 
     }
+     */
     return 0;
 }

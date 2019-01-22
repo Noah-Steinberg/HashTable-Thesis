@@ -4,7 +4,7 @@
 
 
 template<class K, class E>
-HashSlot<K,E>::HashSlot(unsigned hash, const K key, const E element) {
+HashSlot<K,E>::HashSlot(unsigned hash, K key, E element) {
     this->hash = hash;
     this->key = key;
     this->element = element;
@@ -27,23 +27,8 @@ E HashSlot<K,E>::get_element() const {
 }
 
 template<class K, class E>
-bool HashSlot<K,E>::get_active() const {
+bool HashSlot<K,E>::is_active() const {
     return this->active;
-}
-
-template<class K, class E>
-void HashSlot<K,E>::set_hash(unsigned hash ) {
-    this->hash = hash;
-}
-
-template<class K, class E>
-void HashSlot<K,E>::set_key(const K key) {
-    this->key = key;
-}
-
-template<class K, class E>
-void HashSlot<K,E>::set_element(const E element) {
-    this->element = element;
 }
 
 template<class K,class E>
