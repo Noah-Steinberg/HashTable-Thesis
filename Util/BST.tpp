@@ -17,11 +17,11 @@ int BSTTree<K,E>::insert(shared_ptr<HashSlot<K,E>> newSlot)
         return 0;
     }
     shared_ptr<BSTNode<K,E>> subRoot = this->root;
-    while(subRoot != nullptr && !subRoot->is_deleted())
+    while(subRoot != nullptr)
     {
         if(newNode->get_val() < subRoot->get_val())
         {
-            if(subRoot->get_left() == nullptr || subRoot->get_left()->is_deleted())
+            if(subRoot->get_left() == nullptr)
             {
                 subRoot->set_left(newNode);
                 return 0;
@@ -34,7 +34,7 @@ int BSTTree<K,E>::insert(shared_ptr<HashSlot<K,E>> newSlot)
 
         else if(newNode->get_val() > subRoot->get_val() )
         {
-            if(subRoot->get_right() == nullptr || subRoot->get_right()->is_deleted())
+            if(subRoot->get_right() == nullptr)
             {
                 subRoot->set_right(newNode);
                 return 0;
@@ -44,8 +44,19 @@ int BSTTree<K,E>::insert(shared_ptr<HashSlot<K,E>> newSlot)
                 subRoot = subRoot->get_right();
             }
         }
+        else if (newNode->get_val()==subRoot->get_val())
+        {
+            if(!newNode->get_data()->is_active())
+            {
+                newNode->get_data()->toggle_active();
+            }
+            else
+            {
+                 return KEY_ALREADY_EXISTS;
+            }
+        }
     }
-    return -1;
+    return UNDEFINED_FAILURE;
 
 }
 
@@ -68,16 +79,18 @@ int BSTTree<K,E>::remove(K key)
             parent = node;
             node = node->get_right();
         }
-        else if(!node->is_deleted()){
+        else if(node->get_data()->is_active()){
             exists = 1;
             break;
         }
     }
     if(exists)
     {
+        node->get_data()->toggle_active();
+        /* The following code will be useful for when we add deletion
         if(node->get_right()==nullptr && node->get_left()==nullptr)
         {
-            node->mark_deleted();
+            node->get_data()->toggle_active();
         }
         else if(node->get_right()!=nullptr && node->get_left()!=nullptr)
         {
@@ -94,6 +107,7 @@ int BSTTree<K,E>::remove(K key)
                 *node = *node->get_right();
             }
         }
+        */
         return 0;
 
     }
@@ -118,45 +132,19 @@ template<class K, class E>
 int BSTTree<K,E>::get(K key, shared_ptr<HashSlot<K,E>> &slot)
 {
     shared_ptr<BSTNode<K,E>> subRoot = this->root;
-    while(subRoot != nullptr && !subRoot->is_deleted())
-    {
-        if(key < subRoot->get_val())
-        {
+    while(subRoot != nullptr) {
+        if (key < subRoot->get_val()) {
             subRoot = subRoot->get_left();
-        }
-
-        else if(key > subRoot->get_val() )
-        {
+        } else if (key > subRoot->get_val()) {
             subRoot = subRoot->get_right();
-        }
-        else if(!subRoot->is_deleted()){
-            slot = subRoot->get_data();
-            return 0;
+        } else {
+            if (subRoot->get_data()->is_active()) {
+                slot = subRoot->get_data();
+                return 0;
+            }
+            break;
+
         }
     }
-    return -1;
-}
-
-template<class K, class E>
-int BSTTree<K,E>::mark_deleted(K key)
-{
-    shared_ptr<BSTNode<K,E>> subRoot = this->root;
-    while(subRoot != nullptr && !subRoot->is_deleted())
-    {
-        if(key < subRoot->get_val())
-        {
-            subRoot = subRoot->get_left();
-        }
-
-        else if(key > subRoot->get_val() )
-        {
-            subRoot = subRoot->get_right();
-        }
-        else
-        {
-            subRoot->mark_deleted();
-            return 0;
-        }
-    }
-    return -1;
+    return KEY_NOT_FOUND;
 }

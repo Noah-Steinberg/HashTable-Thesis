@@ -5,15 +5,14 @@
 #include "BasicChainingLinkedList.h"
 
 template<class K, class E>
-ChainingLinkedList<K,E>::ChainingLinkedList(unsigned numSlots, Hash<K> hash) {
+BasicChainingLinkedList<K,E>::BasicChainingLinkedList(unsigned numSlots, Hash<K> hash) {
     this->numSlots = numSlots;
     this->hash = hash;
     this->slots = std::vector<std::forward_list<HashSlot<K,E>>>(numSlots);
 }
 
 template<class K, class E>
-int ChainingLinkedList<K,E>::get_slot(unsigned hash, const K &key, HashSlot<K,E> &slotReturn,
-        std::unique_ptr<int> index, bool createSlot) {
+int BasicChainingLinkedList<K,E>::get_slot(unsigned hash, shared_ptr<K> &key, shared_ptr<HashSlot<K,E>> &slotReturn, bool createSlot)  {
 
     hash = hash % this->numSlots;
 

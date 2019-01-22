@@ -5,7 +5,7 @@
 #ifndef HASHTABLE_THESIS_HASHSLOT_H
 #define HASHTABLE_THESIS_HASHSLOT_H
 #include <memory>
-
+using namespace std;
 
 template<class K, class E>
 class HashSlot {
@@ -15,15 +15,12 @@ class HashSlot {
     bool active;
 
 public:
-    HashSlot(unsigned hash, const K key, const E element);
+    HashSlot(unsigned, K key, E element);
     HashSlot() = default;
     unsigned get_hash() const;
     K  get_key() const;
     E  get_element() const;
-    bool get_active() const;
-    void set_hash(unsigned hash);
-    void set_key(const K key);
-    void set_element(const E element);
+    bool is_active() const;
     void toggle_active();
 };
 

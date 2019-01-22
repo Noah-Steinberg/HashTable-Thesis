@@ -1,7 +1,7 @@
 //
 // Created by nnstein on 20/10/18.
 //
-
+using namespace std;
 #include "HashTable.h"
 template<class K, class E>
 HashTable<K,E>::HashTable(unsigned numSlots, Hash<K> hash) {
@@ -11,34 +11,33 @@ HashTable<K,E>::HashTable(unsigned numSlots, Hash<K> hash) {
 }
 
 template<class K, class E>
-int HashTable<K,E>::get_element(const K &key, std::unique_ptr<E> &element){
+int HashTable<K,E>::get_element(K &key, shared_ptr<E> &element){
     int retval = 0;
     unsigned hash;
-    HashSlot<K,E> slot;
+    shared_ptr<HashSlot<K,E>> slot;
     hash = this->hash.digest(key);
-    retval = this->get_slot(hash, key, slot, nullptr, false);
-    if(slot.get_active()) {
-        element.reset(new E(slot.get_element()));
-
+    retval = this->get_slot(hash, key, slot, false);
+    if(slot->is_active()) {
+        element = make_shared<E>(slot->get_element());
     }
     return retval;
 }
 
 template<class K, class E>
-int HashTable<K,E>::insert_element(const K &key, const E &element, bool update){
+int HashTable<K,E>::insert_element(K &key, E &element, bool update){
     int retval = 0;
     unsigned hash;
     hash = this->hash.digest(key);
-    HashSlot<K,E> slot(hash, key, element);
-    retval = this->get_slot(hash, key, slot, nullptr, true);
+    shared_ptr<HashSlot<K,E>> slot = make_shared<HashSlot<K,E>>(hash, key, element);
+    retval = this->get_slot(hash, key, slot, true);
     return retval;
 }
 
 template<class K, class E>
-int HashTable<K,E>::remove_element(const K &key){
+int HashTable<K,E>::remove_element(K &key){
     int retval = 0;
     unsigned hash;
-    HashSlot<K,E> slot;
+    shared_ptr<HashSlot<K,E>> slot;
     hash = this->hash.digest(key);
 
     retval = this->get_slot(hash, key, slot, nullptr, false);
@@ -49,7 +48,7 @@ int HashTable<K,E>::remove_element(const K &key){
          * Some tables will need to override depending on implementation
          * Some tables will need to have a dedicated remove_slot to handle logic
          */
-        slot.toggle_active();
+        slot->toggle_active();
     }
     return retval;
 }

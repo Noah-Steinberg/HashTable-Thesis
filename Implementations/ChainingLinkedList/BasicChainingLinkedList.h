@@ -12,13 +12,12 @@
 #include <memory>
 
 template<class K, class E>
-class ChainingLinkedList : public HashTable<K,E> {
+class BasicChainingLinkedList : public HashTable<K,E> {
 protected:
     std::vector<std::forward_list<HashSlot<K,E>>>  slots;
-    int get_slot(unsigned hash, const K &key, HashSlot<K,E> &slotReturn,
-            std::unique_ptr<int> index=nullptr, bool createSlot=false);
+    int get_slot(unsigned, shared_ptr<K>&, shared_ptr<HashSlot<K,E>>&, bool);
 public:
-    ChainingLinkedList(unsigned numSlots, Hash<K> hash);
+    BasicChainingLinkedList(unsigned numSlots, Hash<K> hash);
 
 };
 
