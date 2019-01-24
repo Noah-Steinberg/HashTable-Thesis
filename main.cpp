@@ -30,7 +30,7 @@ int main(){
     vector<unsigned> numbers(start, end);
     cout << "Read " << numbers.size() << " numbers" << endl;
 
-
+    /*
     auto table = BasicChainingBST<unsigned,unsigned>(100, Hash<unsigned>());
     for(int i=0; i<1000;++i){
         ostringstream os;
@@ -39,12 +39,13 @@ int main(){
         key = numbers[i];
         element = numbers[i];
         table.insert_element(key, element);
-        shared_ptr<unsigned> ele;
+        unsigned ele;
         table.get_element(key, ele);
-        logger->info(*ele);
+        logger->info(ele);
     }
+     */
 
-    /*
+
     vector<unsigned> toRemove;
     auto BST = BSTTree<unsigned,unsigned>();
     for(int i=0; i<1000;++i)
@@ -55,17 +56,17 @@ int main(){
         }
         key = numbers[i];
         element = numbers[i];
-        shared_ptr<HashSlot<unsigned, unsigned>> hashSlot = make_shared<HashSlot<unsigned, unsigned>>(0, key, element);
+        HashSlot<unsigned, unsigned> hashSlot = HashSlot<unsigned, unsigned>(0, key, element);
         BST.insert(hashSlot);
-        shared_ptr<HashSlot<unsigned, unsigned>> slot;
+        HashSlot<unsigned, unsigned> slot;
         int ret = BST.get(key, slot);
         assert(ret==0);
-        assert(slot->get_element()==element);
+        assert(slot.get_element()==element);
     }
     vector<unsigned> removed;
     for (unsigned int i : toRemove) {
         key = i;
-        shared_ptr<HashSlot<unsigned, unsigned>> slot;
+        HashSlot<unsigned, unsigned> slot;
         removed.push_back(i);
         int ret = BST.remove(key);
         assert(ret==0);
@@ -86,6 +87,5 @@ int main(){
         }
 
     }
-     */
     return 0;
 }

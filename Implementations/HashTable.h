@@ -19,10 +19,10 @@ protected:
     vector<HashSlot<K,E>>  slots;
     int         numSlots;
     Hash<K> hash;
-    virtual int get_slot(unsigned , K&, shared_ptr<HashSlot<K,E>>&, bool) = 0;
+    virtual int get_slot(unsigned , K&, HashSlot<K,E>&, bool) = 0;
 public:
     HashTable(unsigned numSlots, Hash<K> hash);
-    int get_element(K&, shared_ptr<E>&);
+    int get_element(K&, E&);
     int insert_element(K&, E&, bool update=false);
     int remove_element(K&);
 };

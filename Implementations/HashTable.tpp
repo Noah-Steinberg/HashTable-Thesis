@@ -11,14 +11,14 @@ HashTable<K,E>::HashTable(unsigned numSlots, Hash<K> hash) {
 }
 
 template<class K, class E>
-int HashTable<K,E>::get_element(K &key, shared_ptr<E> &element){
+int HashTable<K,E>::get_element(K &key, E &element){
     int retval = 0;
     unsigned hash;
-    shared_ptr<HashSlot<K,E>> slot;
+    HashSlot<K,E> slot;
     hash = this->hash.digest(key);
     retval = this->get_slot(hash, key, slot, false);
-    if(slot->is_active()) {
-        element = make_shared<E>(slot->get_element());
+    if(slot.is_active()) {
+        element = slot.get_element();
     }
     return retval;
 }
@@ -28,7 +28,7 @@ int HashTable<K,E>::insert_element(K &key, E &element, bool update){
     int retval = 0;
     unsigned hash;
     hash = this->hash.digest(key);
-    shared_ptr<HashSlot<K,E>> slot = make_shared<HashSlot<K,E>>(hash, key, element);
+    HashSlot<K,E> slot = HashSlot<K,E>(hash, key, element);
     retval = this->get_slot(hash, key, slot, true);
     return retval;
 }
@@ -37,7 +37,7 @@ template<class K, class E>
 int HashTable<K,E>::remove_element(K &key){
     int retval = 0;
     unsigned hash;
-    shared_ptr<HashSlot<K,E>> slot;
+    HashSlot<K,E> slot;
     hash = this->hash.digest(key);
 
     retval = this->get_slot(hash, key, slot, nullptr, false);
