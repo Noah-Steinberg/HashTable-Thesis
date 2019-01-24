@@ -13,7 +13,7 @@ BasicChainingBST<K,E>::BasicChainingBST(unsigned numSlots, Hash<K> hash) {
 }
 
 template<class K, class E>
-int BasicChainingBST<K,E>::get_slot(unsigned hash, K &key, shared_ptr<HashSlot<K,E>> &slotReturn, bool createSlot) {
+int BasicChainingBST<K,E>::get_slot(unsigned hash, K &key, HashSlot<K,E> &slotReturn, bool createSlot) {
 
     hash = hash % this->numSlots;
 

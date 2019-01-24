@@ -8,47 +8,48 @@
 using namespace std;
 
 template<class K, class E>
-int BSTTree<K,E>::insert(shared_ptr<HashSlot<K,E>> newSlot)
+int BSTTree<K,E>::insert(HashSlot<K,E>& newSlot)
 {
-    shared_ptr<BSTNode<K,E>> newNode = make_shared<BSTNode<K,E>>(newSlot);
+    unique_ptr<BSTNode<K,E>> newNode = make_unique<BSTNode<K,E>>(newSlot);
     if(this->root == nullptr)
     {
-        this->root = newNode;
+        this->root = move(newNode);
         return 0;
     }
-    shared_ptr<BSTNode<K,E>> subRoot = this->root;
-    while(subRoot != nullptr)
+    BSTNode<K,E>* cur = this->root.get();
+    while(cur != nullptr)
     {
-        if(newNode->get_val() < subRoot->get_val())
+        if(newNode->get_val() < cur->get_val())
         {
-            if(subRoot->get_left() == nullptr)
+            if(cur->get_left() == nullptr)
             {
-                subRoot->set_left(newNode);
+                cur->left = move(newNode);
                 return 0;
             }
             else
             {
-                subRoot = subRoot->get_left();
+                cur = cur->get_left();
             }
         }
 
-        else if(newNode->get_val() > subRoot->get_val() )
+        else if(newNode->get_val() > cur->get_val() )
         {
-            if(subRoot->get_right() == nullptr)
+            if(cur->get_right() == nullptr)
             {
-                subRoot->set_right(newNode);
+                cur->right = move(newNode);
                 return 0;
             }
             else
             {
-                subRoot = subRoot->get_right();
+                cur = cur->get_right();
             }
         }
-        else if (newNode->get_val()==subRoot->get_val())
+        else if (newNode->get_val()==cur->get_val())
         {
-            if(!newNode->get_data()->is_active())
+            if(!newNode->get_data().is_active())
             {
-                newNode->get_data()->toggle_active();
+                newNode->get_data().toggle_active();
+                return 0;
             }
             else
             {
@@ -63,51 +64,66 @@ int BSTTree<K,E>::insert(shared_ptr<HashSlot<K,E>> newSlot)
 template<class K, class E>
 int BSTTree<K,E>::remove(K key)
 {
-    shared_ptr<BSTNode<K,E>> node = this->root;
-    shared_ptr<BSTNode<K,E>> parent;
+    BSTNode<K,E>* cur = this->root.get();
+    BSTNode<K,E>* parent = nullptr;
     int exists = 0;
-    while(node != nullptr)
+    bool leftChild = false;
+    while(cur != nullptr)
     {
-        if(key < node->get_val())
+        if(key < cur->get_val())
         {
-            parent = node;
-            node = node->get_left();
+            parent = cur;
+            cur = cur->get_left();
+            leftChild = true;
         }
 
-        else if(key > node->get_val() )
+        else if(key > cur->get_val() )
         {
-            parent = node;
-            node = node->get_right();
+            parent = cur;
+            cur = cur->get_right();
+            leftChild = false;
         }
-        else if(node->get_data()->is_active()){
+        else if(cur->get_data().is_active()){
             exists = 1;
             break;
         }
     }
     if(exists)
     {
-        node->get_data()->toggle_active();
-        /* The following code will be useful for when we add deletion
-        if(node->get_right()==nullptr && node->get_left()==nullptr)
+        if(this->deleteItems)
         {
-            node->get_data()->toggle_active();
-        }
-        else if(node->get_right()!=nullptr && node->get_left()!=nullptr)
-        {
-            this->replace_inorder_predecessor(node);
-        }
-        else
-        {
-            if(node->get_right()==nullptr)
+            if(cur->get_right()==nullptr && cur->get_left()==nullptr)
             {
-                *node = *node->get_left();
+                if(parent==nullptr){
+                    this->root.reset();
+                }
+                else if(leftChild){
+                    parent->left.reset();
+                }
+                else{
+                    parent->right.reset();
+                }
+            }
+            else if(cur->get_right()!=nullptr && cur->get_left()!=nullptr)
+            {
+                this->replace_inorder_predecessor(cur, parent);
             }
             else
             {
-                *node = *node->get_right();
+                if(cur->get_right()==nullptr)
+                {
+                    parent->left = move(cur->left);
+                }
+                else
+                {
+                    parent->right = move(cur->right);
+                }
             }
         }
-        */
+        else
+        {
+            cur->get_data().toggle_active();
+        }
         return 0;
 
     }
@@ -118,28 +134,28 @@ int BSTTree<K,E>::remove(K key)
 }
 
 template<class K, class E>
-void BSTTree<K,E>::replace_inorder_predecessor(shared_ptr<BSTNode<K,E>>& subRoot)
+void BSTTree<K,E>::replace_inorder_predecessor(BSTNode<K,E>* cur, BSTNode<K,E>* parent)
 {
-    shared_ptr<BSTNode<K,E>> rightTree = subRoot->get_right();
-    while(rightTree->get_left()!=nullptr)
+    cur = cur->get_right();
+    while(cur->get_left()!=nullptr)
     {
-        rightTree = rightTree->get_left();
+        cur = cur->get_left();
     }
-    *subRoot->get_data() = *rightTree->get_data();
+    parent->data = move(cur->data);
 }
 
 template<class K, class E>
-int BSTTree<K,E>::get(K key, shared_ptr<HashSlot<K,E>> &slot)
+int BSTTree<K,E>::get(K key, HashSlot<K,E>& slot)
 {
-    shared_ptr<BSTNode<K,E>> subRoot = this->root;
-    while(subRoot != nullptr) {
-        if (key < subRoot->get_val()) {
-            subRoot = subRoot->get_left();
-        } else if (key > subRoot->get_val()) {
-            subRoot = subRoot->get_right();
+    BSTNode<K,E>* cur = this->root.get();
+    while(cur != nullptr) {
+        if (key < cur->get_val()) {
+            cur = cur->get_left();
+        } else if (key > cur->get_val()) {
+            cur = cur->get_right();
         } else {
-            if (subRoot->get_data()->is_active()) {
-                slot = subRoot->get_data();
+            if (cur->get_data().is_active()) {
+                slot = cur->get_data();
                 return 0;
             }
             break;

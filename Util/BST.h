@@ -16,32 +16,26 @@ using namespace std;
 
 template<class K, class E>
 class BSTNode {
-    shared_ptr<HashSlot<K,E>> data;
-    shared_ptr<BSTNode<K,E>> left;
-    shared_ptr<BSTNode<K,E>> right;
 
 public:
-    explicit BSTNode(shared_ptr<HashSlot<K,E>> data){
-        this->data = data;
+    unique_ptr<HashSlot<K,E>> data;
+    unique_ptr<BSTNode<K,E>> left;
+    unique_ptr<BSTNode<K,E>> right;
+
+    explicit BSTNode(HashSlot<K,E> newSlot){
+        this->data = move(make_unique<HashSlot<K,E>>(newSlot));
         this->left = nullptr;
         this->right = nullptr;
     }
 
-    void set_left(shared_ptr<BSTNode<K, E>> left){
-        this->left.swap(left);
+    BSTNode<K,E>* get_left(){
+        return this->left.get();
     }
-    void set_right(shared_ptr<BSTNode<K, E>> right){
-        this->right.swap(right);
+    BSTNode<K,E>* get_right(){
+        return this->right.get();
     }
-
-    shared_ptr<BSTNode<K,E>> get_left(){
-        return this->left;
-    }
-    shared_ptr<BSTNode<K,E>> get_right(){
-        return this->right;
-    }
-    shared_ptr<HashSlot<K,E>> get_data(){
-        return this->data;
+    HashSlot<K,E>& get_data(){
+        return *this->data;
     }
     K get_val(){
         return this->data->get_key();
@@ -53,14 +47,18 @@ public:
 template<class K, class E>
 class BSTTree{
 private:
-    void replace_inorder_predecessor(shared_ptr<BSTNode<K,E>>&);
+    void replace_inorder_predecessor(BSTNode<K,E>*, BSTNode<K,E>*);
+    bool deleteItems = false;
 protected:
-    shared_ptr<BSTNode<K,E>> root = nullptr;
+    unique_ptr<BSTNode<K,E>> root = nullptr;
 public:
     BSTTree() = default;
-    int insert(shared_ptr<HashSlot<K,E>>);
+    explicit BSTTree(bool deleteItems){
+        this->deleteItems = deleteItems;
+    }
+    int insert(HashSlot<K,E>&);
     int remove(K key);
-    int get(K key, shared_ptr<HashSlot<K,E>>&);
+    int get(K key, HashSlot<K,E>&);
 };
 #include "BST.tpp"
 #endif //HASHTABLE_THESIS_BST_H
