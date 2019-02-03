@@ -36,3 +36,6 @@
 
 # Ignore CMAKE Folder
 cmake-build-debug/
+
+# Ignore Test Data
+TestData/
