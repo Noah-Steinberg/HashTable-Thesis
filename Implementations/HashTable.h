@@ -20,6 +20,7 @@ protected:
     int         numSlots;
     Hash<K> hash;
     virtual HashSlot<K,E>& get_slot(unsigned , K&, int&) = 0;
+
 public:
     HashTable(unsigned numSlots, Hash<K> hash);
     int get_element(K&, E&);
