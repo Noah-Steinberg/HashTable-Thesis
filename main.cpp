@@ -2,6 +2,7 @@
 #include "Util/HashSlot.h"
 #include "HashFunctions/Hash.h"
 #include "Implementations/ChainingLinkedList/BasicChainingLinkedList.h"
+#include "Implementations/RobinHood/BasicRobinHood.h"
 #include "Implementations/ChainingBST/BasicChainingBST.h"
 #include "Util/BST.h"
 #include <iostream>
@@ -30,8 +31,7 @@ int main(){
     vector<unsigned> numbers(start, end);
     cout << "Read " << numbers.size() << " numbers" << endl;
 
-    /*
-    auto table = BasicChainingBST<unsigned,unsigned>(100, Hash<unsigned>());
+    auto table = BasicRobinHood<unsigned,unsigned>(100, Hash<unsigned>());
     for(int i=0; i<1000;++i){
         ostringstream os;
         os << "Inserting element " << numbers[i];
@@ -42,8 +42,11 @@ int main(){
         unsigned ele;
         table.get_element(key, ele);
         logger->info(ele);
+        table.remove_element(key);
+        int retcode = table.get_element(key, ele);
+        logger->info(retcode);
     }
-     */
+    /*
 
 
     vector<unsigned> toRemove;
@@ -87,5 +90,6 @@ int main(){
         }
 
     }
+     */
     return 0;
 }

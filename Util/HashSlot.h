@@ -13,6 +13,7 @@ class HashSlot {
     K key;
     E element;
     bool active;
+    bool empty = true;
 
 public:
     HashSlot(unsigned, K key, E element);
@@ -21,6 +22,7 @@ public:
     K  get_key() const;
     E  get_element() const;
     bool is_active() const;
+    bool is_empty() const;
     void toggle_active();
 };
 

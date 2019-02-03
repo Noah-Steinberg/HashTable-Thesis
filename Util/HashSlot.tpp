@@ -9,6 +9,7 @@ HashSlot<K,E>::HashSlot(unsigned hash, K key, E element) {
     this->key = key;
     this->element = element;
     this->active = true;
+    this->empty = false;
 }
 
 template<class K, class E>
@@ -29,6 +30,11 @@ E HashSlot<K,E>::get_element() const {
 template<class K, class E>
 bool HashSlot<K,E>::is_active() const {
     return this->active;
+}
+
+template<class K, class E>
+bool HashSlot<K,E>::is_empty() const {
+    return this->empty;
 }
 
 template<class K,class E>

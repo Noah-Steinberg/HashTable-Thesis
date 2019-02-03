@@ -12,7 +12,7 @@ BasicChainingLinkedList<K,E>::BasicChainingLinkedList(unsigned numSlots, Hash<K>
 }
 
 template<class K, class E>
-int BasicChainingLinkedList<K,E>::get_slot(unsigned hash, shared_ptr<K> &key, shared_ptr<HashSlot<K,E>> &slotReturn, bool createSlot)  {
+int BasicChainingLinkedList<K,E>::get_slot(unsigned hash, K& key, HashSlot<K,E>& slotReturn, bool createSlot)  {
 
     hash = hash % this->numSlots;
 
@@ -22,7 +22,7 @@ int BasicChainingLinkedList<K,E>::get_slot(unsigned hash, shared_ptr<K> &key, sh
                 return KEY_ALREADY_EXISTS;
             }
             slotReturn = ele;
-            return 0;
+            return SUCCESS;
         }
     }
 

@@ -14,10 +14,9 @@ template<class K, class E>
 int HashTable<K,E>::get_element(K &key, E &element){
     int retval = 0;
     unsigned hash;
-    HashSlot<K,E> slot;
     hash = this->hash.digest(key);
-    retval = this->get_slot(hash, key, slot, false);
-    if(slot.is_active()) {
+    HashSlot<K,E>& slot = this->get_slot(hash, key, retval);
+    if( slot.is_active()) {
         element = slot.get_element();
     }
     return retval;
@@ -28,8 +27,8 @@ int HashTable<K,E>::insert_element(K &key, E &element, bool update){
     int retval = 0;
     unsigned hash;
     hash = this->hash.digest(key);
-    HashSlot<K,E> slot = HashSlot<K,E>(hash, key, element);
-    retval = this->get_slot(hash, key, slot, true);
+    HashSlot<K,E>& slot = this->get_slot(hash, key, retval);
+    slot = HashSlot<K,E>(hash, key, element);
     return retval;
 }
 
@@ -37,10 +36,9 @@ template<class K, class E>
 int HashTable<K,E>::remove_element(K &key){
     int retval = 0;
     unsigned hash;
-    HashSlot<K,E> slot;
     hash = this->hash.digest(key);
 
-    retval = this->get_slot(hash, key, slot, nullptr, false);
+    HashSlot<K,E>& slot = this->get_slot(hash, key, retval);
     if(retval != KEY_NOT_FOUND){
         /*
          * Sets key and element to null
@@ -48,7 +46,7 @@ int HashTable<K,E>::remove_element(K &key){
          * Some tables will need to override depending on implementation
          * Some tables will need to have a dedicated remove_slot to handle logic
          */
-        slot->toggle_active();
+        slot.toggle_active();
     }
     return retval;
 }

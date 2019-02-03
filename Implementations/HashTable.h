@@ -19,7 +19,7 @@ protected:
     vector<HashSlot<K,E>>  slots;
     int         numSlots;
     Hash<K> hash;
-    virtual int get_slot(unsigned , K&, HashSlot<K,E>&, bool) = 0;
+    virtual HashSlot<K,E>& get_slot(unsigned , K&, int&) = 0;
 public:
     HashTable(unsigned numSlots, Hash<K> hash);
     int get_element(K&, E&);
