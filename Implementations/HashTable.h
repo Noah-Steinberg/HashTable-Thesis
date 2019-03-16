@@ -18,11 +18,12 @@ protected:
     HashTable() = default;
     vector<HashSlot<K,E>>  slots;
     int         numSlots;
-    Hash<K> hash;
+    Hash<K>* hash;
     virtual HashSlot<K,E>& get_slot(unsigned , K&, int&) = 0;
+    virtual int resize() = 0;
 
 public:
-    HashTable(unsigned numSlots, Hash<K> hash);
+    HashTable(unsigned numSlots, Hash<K>* hash);
     int get_element(K&, E&);
     int insert_element(K&, E&, bool update=false);
     int remove_element(K&);

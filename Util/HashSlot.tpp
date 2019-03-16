@@ -13,6 +13,15 @@ HashSlot<K,E>::HashSlot(unsigned hash, K key, E element) {
 }
 
 template<class K, class E>
+HashSlot<K,E>::HashSlot(const HashSlot<K,E>& base) {
+    this->hash = base.hash;
+    this->key = base.key;
+    this->element = base.element;
+    this->active = base.active;
+    this->empty = base.empty;
+}
+
+template<class K, class E>
 unsigned HashSlot<K,E>::get_hash() const {
     return this->hash;
 }

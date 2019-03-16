@@ -19,7 +19,7 @@ public:
         this->seed = seed;
         this->digestSize = digestSize;
     }
-    unsigned digest(K data){
+    virtual unsigned digest(K data){
         return (unsigned) data;
     }
 };

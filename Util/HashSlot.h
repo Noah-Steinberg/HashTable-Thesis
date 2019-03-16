@@ -9,6 +9,7 @@ using namespace std;
 
 template<class K, class E>
 class HashSlot {
+protected:
     unsigned hash;
     K key;
     E element;
@@ -16,7 +17,8 @@ class HashSlot {
     bool empty = true;
 
 public:
-    HashSlot(unsigned, K key, E element);
+    HashSlot(unsigned, K, E);
+    HashSlot(const HashSlot<K,E>&);
     HashSlot() = default;
     unsigned get_hash() const;
     K  get_key() const;

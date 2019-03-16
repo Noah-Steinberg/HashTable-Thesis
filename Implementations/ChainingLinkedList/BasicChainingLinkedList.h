@@ -15,9 +15,10 @@ template<class K, class E>
 class BasicChainingLinkedList : public HashTable<K,E> {
 protected:
     std::vector<std::forward_list<HashSlot<K,E>>>  slots;
-    int get_slot(unsigned, K&, HashSlot<K,E>&, bool);
+    HashSlot<K,E>& get_slot(unsigned, K&, int&);
+    int resize();
 public:
-    BasicChainingLinkedList(unsigned numSlots, Hash<K> hash);
+    BasicChainingLinkedList(unsigned numSlots, Hash<K>* hash);
 
 };
 

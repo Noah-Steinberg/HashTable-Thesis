@@ -15,10 +15,12 @@ template<class K, class E>
 class BasicRobinHood : public HashTable<K,E> {
 protected:
     std::vector<HashSlot<K,E>>  slots;
-public:
-    BasicRobinHood(unsigned numSlots, Hash<K> hash);
     HashSlot<K,E>& get_slot(unsigned, K&, int&);
+    int resize();
+public:
+    BasicRobinHood(unsigned numSlots, Hash<K>* hash);
     int insert_element(K&, E&, bool update=false);
+
 };
 
 #include "BasicRobinHood.tpp"

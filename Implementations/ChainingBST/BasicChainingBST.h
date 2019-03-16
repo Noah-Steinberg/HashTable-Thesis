@@ -18,9 +18,11 @@ template<class K, class E>
 class BasicChainingBST : public HashTable<K,E> {
 protected:
     vector<BSTTree<K,E>>  slots;
-    int get_slot(unsigned hash, K&, HashSlot<K,E>&, bool);
+    HashSlot<K,E>& get_slot(unsigned hash, K&, int&);
+    int resize();
 public:
-    BasicChainingBST(unsigned numSlots, Hash<K> hash);
+    BasicChainingBST(unsigned numSlots, Hash<K>* hash);
+    int insert_element(K&, E&);
 
 };
 

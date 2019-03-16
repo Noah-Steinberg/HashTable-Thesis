@@ -39,3 +39,4 @@ cmake-build-debug/
 
 # Ignore Test Data
 TestData/
+TestResults/

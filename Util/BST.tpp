@@ -8,10 +8,22 @@
 using namespace std;
 
 template<class K, class E>
+BSTTree<K,E>::BSTTree(const BSTTree<K,E>& base){
+    HashSlot<K,E> tmp;
+    HashSlot<K,E> curr;
+    BSTIterator<K,E> it = BSTIterator<K,E>(base.root.get());
+    while(it.hasNext()){
+        tmp = it.next();
+        curr = HashSlot<K,E>(tmp);
+        this->insert(curr);
+    }
+}
+
+template<class K, class E>
 int BSTTree<K,E>::insert(HashSlot<K,E>& newSlot)
 {
     unique_ptr<BSTNode<K,E>> newNode = make_unique<BSTNode<K,E>>(newSlot);
-    if(this->root == nullptr)
+    if(!this->root)
     {
         this->root = move(newNode);
         return 0;
@@ -145,8 +157,9 @@ void BSTTree<K,E>::replace_inorder_predecessor(BSTNode<K,E>* cur, BSTNode<K,E>* 
 }
 
 template<class K, class E>
-int BSTTree<K,E>::get(K key, HashSlot<K,E>& slot)
+HashSlot<K,E>& BSTTree<K,E>::get(K key, int& retcode)
 {
+    retcode = KEY_NOT_FOUND;
     BSTNode<K,E>* cur = this->root.get();
     while(cur != nullptr) {
         if (key < cur->get_val()) {
@@ -155,12 +168,12 @@ int BSTTree<K,E>::get(K key, HashSlot<K,E>& slot)
             cur = cur->get_right();
         } else {
             if (cur->get_data().is_active()) {
-                slot = cur->get_data();
-                return 0;
+                retcode = SUCCESS;
+                return cur->get_data();
             }
             break;
 
         }
     }
-    return KEY_NOT_FOUND;
+    return this->default_slot;
 }
