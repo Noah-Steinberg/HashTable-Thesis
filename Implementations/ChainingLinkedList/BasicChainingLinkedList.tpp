@@ -36,9 +36,11 @@ HashSlot<K,E>& BasicChainingLinkedList<K,E>::get_slot(unsigned hash, K& key, int
 template<class K, class E>
 int BasicChainingLinkedList<K,E>::resize() {
     std::vector<std::forward_list<HashSlot<K,E>>> oldSlots = this->slots;
-    this->slots = std::vector<std::forward_list<HashSlot<K,E>>>(this->numSlots*2);
+    this->numSlots += this->numSlots;
+    this->slots = std::vector<std::forward_list<HashSlot<K,E>>>(this->numSlots);
 
     HashSlot<K,E> curr;
+    this->numElements = 0;
 
     for(auto iterator1=oldSlots.begin(); iterator1<oldSlots.end(); iterator1++){
         for(auto iterator2=((*iterator1).begin()); iterator2!=((*iterator1).end()); iterator2++){

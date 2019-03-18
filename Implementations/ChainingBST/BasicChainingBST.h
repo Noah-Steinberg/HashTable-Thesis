@@ -22,7 +22,8 @@ protected:
     int resize();
 public:
     BasicChainingBST(unsigned numSlots, Hash<K>* hash);
-    int insert_element(K&, E&);
+
+    virtual int insert_element(K&, E&);
 
 };
 

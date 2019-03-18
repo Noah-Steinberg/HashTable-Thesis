@@ -127,13 +127,16 @@ int BasicCuckoo<K,E>::remove_element(K &key){
 
 template<class K, class E>
 int BasicCuckoo<K,E>::resize() {
-    std::vector<HashSlot<K,E>> oldSlots1 = this->slots1;
-    this->slots1 = std::vector<HashSlot<K,E>>(this->numSlots*2);
+    this->numSlots += this->numSlots;
 
-    std::vector<HashSlot<K,E>> oldSlots2 = this->slots2;
-    this->slots2 = std::vector<HashSlot<K,E>>(this->numSlots*2);
+    std::vector<CuckooHashSlot<K,E>> oldSlots1 = this->slots1;
+    this->slots1 = std::vector<CuckooHashSlot<K,E>>(this->numSlots);
+
+    std::vector<CuckooHashSlot<K,E>> oldSlots2 = this->slots2;
+    this->slots2 = std::vector<CuckooHashSlot<K,E>>(this->numSlots);
 
     HashSlot<K,E> curr;
+    this->numElements = 0;
 
     for(auto iterator1=oldSlots1.begin(); iterator1<oldSlots1.end(); iterator1++){
         curr = *iterator1;

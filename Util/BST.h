@@ -52,7 +52,7 @@ public:
     BSTIterator(BSTNode<K,E>* root) {
         this->stack = std::stack<BSTNode<K,E>*>();
 
-        while(root!= nullptr){
+        while(root!=nullptr){
             this->stack.push(root);
             root = root->get_left();
         }
@@ -86,14 +86,15 @@ protected:
     unique_ptr<BSTNode<K,E>> root = unique_ptr<BSTNode<K,E>>(nullptr);
     HashSlot<K,E> default_slot = HashSlot<K,E>();
 public:
+    int numElements = 0;
     BSTTree() = default;
-    BSTTree(const BSTTree<K,E>&);
     explicit BSTTree(bool deleteItems){
         this->deleteItems = deleteItems;
     };
     BSTNode<K,E>* get_root(){
         return this->root.get();
     };
+    void moveTree(BSTTree<K,E>&);
     int insert(HashSlot<K,E>&);
     int remove(K key);
     HashSlot<K,E>& get(K key, int&);

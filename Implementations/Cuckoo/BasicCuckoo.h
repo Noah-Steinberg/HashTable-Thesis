@@ -19,6 +19,7 @@ protected:
     Hash<K>* hash1;
     Hash<K>* hash2;
     int numSlots;
+    int numElements;
     std::vector<CuckooHashSlot<K,E>>  slots1;
     std::vector<CuckooHashSlot<K,E>>  slots2;
     CuckooHashSlot<K,E>& get_slot(unsigned, unsigned, K&, int&);
@@ -28,7 +29,8 @@ public:
     BasicCuckoo(unsigned, Hash<K>*, Hash<K>*);
     int insert_element(K&, E&, bool update=false);
     int get_element(K& key, E& element);
-    int remove_element(K& key);
+
+    virtual int remove_element(K& key);
 };
 
 #include "BasicCuckoo.tpp"

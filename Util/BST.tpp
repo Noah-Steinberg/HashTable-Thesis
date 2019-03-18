@@ -8,15 +8,9 @@
 using namespace std;
 
 template<class K, class E>
-BSTTree<K,E>::BSTTree(const BSTTree<K,E>& base){
-    HashSlot<K,E> tmp;
-    HashSlot<K,E> curr;
-    BSTIterator<K,E> it = BSTIterator<K,E>(base.root.get());
-    while(it.hasNext()){
-        tmp = it.next();
-        curr = HashSlot<K,E>(tmp);
-        this->insert(curr);
-    }
+void BSTTree<K,E>::moveTree(BSTTree<K,E>& tree){
+    tree.numElements = this->numElements;
+    tree.root = move(this->root);
 }
 
 template<class K, class E>
@@ -26,7 +20,8 @@ int BSTTree<K,E>::insert(HashSlot<K,E>& newSlot)
     if(!this->root)
     {
         this->root = move(newNode);
-        return 0;
+        this->numElements++;
+        return SUCCESS;
     }
     BSTNode<K,E>* cur = this->root.get();
     while(cur != nullptr)
@@ -36,7 +31,8 @@ int BSTTree<K,E>::insert(HashSlot<K,E>& newSlot)
             if(cur->get_left() == nullptr)
             {
                 cur->left = move(newNode);
-                return 0;
+                this->numElements++;
+                return SUCCESS;
             }
             else
             {
@@ -49,7 +45,8 @@ int BSTTree<K,E>::insert(HashSlot<K,E>& newSlot)
             if(cur->get_right() == nullptr)
             {
                 cur->right = move(newNode);
-                return 0;
+                this->numElements++;
+                return SUCCESS;
             }
             else
             {
@@ -61,7 +58,8 @@ int BSTTree<K,E>::insert(HashSlot<K,E>& newSlot)
             if(!newNode->get_data().is_active())
             {
                 newNode->get_data().toggle_active();
-                return 0;
+                this->numElements++;
+                return SUCCESS;
             }
             else
             {
@@ -136,7 +134,8 @@ int BSTTree<K,E>::remove(K key)
         {
             cur->get_data().toggle_active();
         }
-        return 0;
+        this->numElements--;
+        return SUCCESS;
 
     }
     else

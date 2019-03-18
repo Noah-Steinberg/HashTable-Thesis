@@ -8,21 +8,26 @@
 #include <time.h>
 #include <string>
 
-class TestTimer {
+class TestStatistic {
 
 public:
     clock_t start, finish;
-    double seconds_taken = -1;
+    double value = -1;
     std::string operation;
-    TestTimer(std::string operation){
+    std::string unit;
+    TestStatistic(std::string operation, std::string unit){
         this->operation = operation;
+        this->unit = unit;
     };
     void start_timer(){
         this->start = clock();
     }
     void stop_timer(){
         this->finish = clock();
-        this->seconds_taken = ((double) (this->finish-this->start)) / CLOCKS_PER_SEC;
+        this->value = ((double) (this->finish-this->start)) / CLOCKS_PER_SEC;
+    }
+    void set_value(double value){
+        this->value = value;
     }
 };
 
