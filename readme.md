@@ -8,8 +8,10 @@ However, each hash table should be affected equally by the changes, minimizing a
 Build in CLion by IntelliJ using CMAKE
 
 ### Dependencies:
-#### spdlog: 
-A fast C++ logging header-only library (https://github.com/gabime/spdlog)
+#### catch2:
+Catch2 stands for C++ Automated Test Cases in a Header and is a multi-paradigm test framework for C++. which also supports Objective-C (and maybe C). It is primarily distributed as a single header file, although certain extensions may require additional headers.
+https://github.com/catchorg/Catch2
+Used for unit testing/profiling of table time complexity and memory usage.
 
 
 ### Refences:
