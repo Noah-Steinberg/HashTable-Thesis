@@ -37,7 +37,7 @@ TEST_CASE("Memory Test", "[memory]") {
     std::vector<TestStatistic> statistics = std::vector<TestStatistic>();
     TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
     TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
+    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
     init_memory_size.set_value((double) getMemory());
 
 

@@ -34,11 +34,7 @@ int ProbeResizingCK<K,E>::insert_element(K &key, E &element){
     }
 
     int counter=0;
-    while(true){
-        counter++;
-        if(counter>=this->maxChain){
-            resizeFlag = true;
-        }
+    while(!resizeFlag){
         if(this->slots1[i].is_empty()){
             this->slots1[i] = newSlot;
             break;
@@ -63,6 +59,20 @@ int ProbeResizingCK<K,E>::insert_element(K &key, E &element){
                 i = newSlot.get_hash() % this->numSlots;
                 i2 = newSlot.get_hash2() % this->numSlots;
                 swapFirst = true;
+            }
+        }
+        counter++;
+        if(counter>=this->maxChain){
+            resizeFlag = true;
+            for(int j=0; j<this->numSlots;j++){
+                if(this->slots1[j].is_empty()){
+                    this->slots1[j] = newSlot;
+                    break;
+                }
+                else if(this->slots2[j].is_empty()){
+                    this->slots2[j] = newSlot;
+                    break;
+                }
             }
         }
     }

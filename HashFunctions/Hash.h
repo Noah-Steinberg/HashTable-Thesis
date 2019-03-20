@@ -14,7 +14,7 @@ class Hash{
 
 public:
     Hash() = default;
-    //TODO cut out into hash that needs this
+
     Hash(unsigned seed, size_t digestSize){
         this->seed = seed;
         this->digestSize = digestSize;

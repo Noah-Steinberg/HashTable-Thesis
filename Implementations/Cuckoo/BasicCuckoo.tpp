@@ -55,10 +55,12 @@ int BasicCuckoo<K,E>::insert_element(K &key, E &element, bool update){
     CuckooHashSlot<K,E> tmpSlot;
     bool swapFirst = true;
 
-    if(this->slots1[i].get_key()==key || this->slots2[i2].get_key()==key){
+    if( (this->slots1[i].get_key()==key && !this->slots1[i].is_empty())
+        || (this->slots2[i2].get_key()==key && !this->slots2[i2].is_empty()) ){
         return KEY_ALREADY_EXISTS;
     }
 
+    int counter = 0;
     while(true){
         if(this->slots1[i].is_empty()){
             this->slots1[i] = newSlot;
@@ -85,6 +87,10 @@ int BasicCuckoo<K,E>::insert_element(K &key, E &element, bool update){
                 i2 = newSlot.get_hash2() % this->numSlots;
                 swapFirst = true;
             }
+        }
+        counter++;
+        if(counter>=this->numSlots*2){
+            return UNDEFINED_FAILURE;
         }
     }
 

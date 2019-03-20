@@ -1,5 +1,5 @@
 //
-// Created by nnstein on 16/03/19.
+// Created by nnstein on 20/03/19.
 //
 
 #include <fstream>
@@ -8,20 +8,14 @@
 
 #include "../Util/enums.h"
 
-#include "../Implementations/ChainingLinkedList/CombinedResizingLL.h"
-#include "../Implementations/ChainingLinkedList/LoadResizingLL.h"
+#include "../Implementations/ChainingLinkedList/BasicChainingLinkedList.h"
+#include "../Implementations/ChainingBST/BasicChainingBST.h"
+#include "../Implementations/RobinHood/BasicRobinHood.h"
+#include "../Implementations/Cuckoo/BasicCuckoo.h"
+
 #include "../Implementations/ChainingLinkedList/ProbeResizingLL.h"
-
-#include "../Implementations/ChainingBST/CombinedResizingBST.h"
-#include "../Implementations/ChainingBST/LoadResizingBST.h"
 #include "../Implementations/ChainingBST/ProbeResizingBST.h"
-
-#include "../Implementations/Cuckoo/CombinedResizingCK.h"
-#include "../Implementations/Cuckoo/LoadResizingCK.h"
 #include "../Implementations/Cuckoo/ProbeResizingCK.h"
-
-#include "../Implementations/RobinHood/CombinedResizingRH.h"
-#include "../Implementations/RobinHood/LoadResizingRH.h"
 #include "../Implementations/RobinHood/ProbeResizingRH.h"
 
 #include "../HashFunctions/FNV1a.h"
@@ -32,15 +26,13 @@
 #include "../Util/MemorySize.h"
 
 using namespace std;
-TEST_CASE("Load Resize Test", "[load][resize]") {
-    unsigned total_insertions = 1000000;
-    double max_load = 0.9;
+TEST_CASE("Collision Test", "[basic][collision]") {
+    unsigned total_insertions = 10000;
     unsigned key;
     unsigned element;
-    FNV1a<unsigned> hash_function = FNV1a<unsigned>();
-    hash_function.seed = 1234567890;
+    Hash<unsigned> hash_function = Hash<unsigned>();
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/collision.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -56,52 +48,33 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
 
-    TestStatistic resize_time = TestStatistic("Resize Time", "Seconds");
+    TestStatistic longest_duplicate = TestStatistic("Longest Duplicate Check", "Seconds");
+    TestStatistic average_duplicate = TestStatistic("Average Duplicate Check", "Seconds");
+    std::vector<TestStatistic> all_duplicates = std::vector<TestStatistic>();
+
+
+    TestStatistic longest_removal = TestStatistic("Longest Removal", "Seconds");
+    TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
+    std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
 
     TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
     TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
     TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
     init_memory_size.set_value((double) getMemory());
 
-    SECTION("LinkedList_Test"){
-        test_name = "LL_LOADRESIZE";
+    SECTION("Chained_LL_Table_Test"){
+        test_name = "LL_COLLISION";
 
         test_length.start_timer();
 
-        auto table = LoadResizingLL<unsigned, unsigned>(total_insertions, &hash_function, max_load);
+        auto table = BasicChainingLinkedList<unsigned,unsigned>(total_insertions, &hash_function);
         base_memory_size.set_value((double) getMemory());
-        int retcode;
 
-        INFO("Inserting initial elements")
-        for(int i=0; i<(int) (max_load*total_insertions-1);++i){
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
 
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        INFO("Inserting element to trigger resize");
-        int index = (int)  (max_load*total_insertions-1);
-        key = numbers[index];
-        element = numbers[index];
-        resize_time.start_timer();
-        retcode = table.insert_element(key, element);
-        resize_time.stop_timer();
-        REQUIRE(retcode==SUCCESS);
-
-        INFO("Inserting remaining elements")
-        for(int i=(int) (max_load*total_insertions); i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             INFO("Inserting element " << element);
@@ -123,12 +96,11 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
@@ -150,49 +122,212 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
+
+        memory_size.set_value((double) getMemory());
+
+        INFO("Duplicating all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Checking for duplicate key " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
+            }
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_duplicate.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            retcode = table.get_element(key, ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
+        }
+
+        test_length.stop_timer();
+    }
+    SECTION("Chained_BST_Table_Test"){
+        test_name = "BST_COLLISION";
+
+        test_length.start_timer();
+
+        auto table = BasicChainingBST<unsigned,unsigned>(total_insertions, &hash_function);
+        base_memory_size.set_value((double) getMemory());
+
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_insertions.push_back(tmp);
+            if(longest_inseration.value < tmp.value){
+                longest_inseration = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+
+        double average_seconds=0;
+        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_insertion.value = average_seconds;
+
+
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            tmp.start_timer();
+            retcode = table.get_element(key, ele);
+            tmp.stop_timer();
+            all_retrievals.push_back(tmp);
+            if(longest_retrieval.value < tmp.value){
+                longest_retrieval = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+            REQUIRE(element==ele);
+        }
+
+        average_seconds=0;
+        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_retrievals.size();
+        average_retrieval.value = average_seconds;
+
+        memory_size.set_value((double) getMemory());
+
+        INFO("Duplicating all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Checking for duplicate key " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
+            }
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_duplicate.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            retcode = table.get_element(key, ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
+        }
 
         test_length.stop_timer();
     }
 
-    SECTION("BST_Table_Test"){
-        test_name = "BST_LOADRESIZE";
+    SECTION("Robin_Hood_Hash_Table_Test"){
+        test_name = "RH_COLLISION";
 
         test_length.start_timer();
 
-        auto table = LoadResizingBST<unsigned, unsigned>(total_insertions, &hash_function, max_load);
+        auto table = BasicRobinHood<unsigned,unsigned>(total_insertions*2, &hash_function);
         base_memory_size.set_value((double) getMemory());
-        int retcode;
 
-        INFO("Inserting initial elements")
-        for(int i=0; i<(int) (max_load*total_insertions-1);++i){
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
 
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        INFO("Inserting element to trigger resize");
-        int index = (int)  (max_load*total_insertions-1);
-        key = numbers[index];
-        element = numbers[index];
-        resize_time.start_timer();
-        retcode = table.insert_element(key, element);
-        resize_time.stop_timer();
-        REQUIRE(retcode==SUCCESS);
-
-        INFO("Inserting remaining elements")
-        for(int i=(int) (max_load*total_insertions); i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             INFO("Inserting element " << element);
@@ -214,12 +349,11 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
@@ -242,141 +376,87 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        test_length.stop_timer();
+        memory_size.set_value((double) getMemory());
 
-    }
+        INFO("Duplicating all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
 
-    SECTION("Robin_Hood_Test"){
-        test_name = "RH_LOADRESIZE";
-        test_length.start_timer();
-
-        auto table = LoadResizingRH<unsigned, unsigned>(total_insertions, &hash_function, max_load);
-        base_memory_size.set_value((double) getMemory());
-        int retcode;
-
-        INFO("Inserting initial elements")
-        for(int i=0; i<(int) (max_load*total_insertions-1);++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
-            INFO("Inserting element " << element);
+            INFO("Checking for duplicate key " << element);
             tmp.start_timer();
             retcode = table.insert_element(key, element);
             tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
             }
-            REQUIRE(retcode==SUCCESS);
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
         }
-
-        INFO("Inserting element to trigger resize");
-        int index = (int)  (max_load*total_insertions-1);
-        key = numbers[index];
-        element = numbers[index];
-        resize_time.start_timer();
-        retcode = table.insert_element(key, element);
-        resize_time.stop_timer();
-        REQUIRE(retcode==SUCCESS);
-
-        INFO("Inserting remaining elements")
-        for(int i=(int) (max_load*total_insertions); i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        double average_seconds=0;
-        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
             average_seconds += it.base()->value;
         }
         average_seconds = average_seconds / all_insertions.size();
 
-        average_insertion.value = average_seconds;
+        average_duplicate.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
-
-        INFO("Checking for all elements")
+        INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
 
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
             INFO("Checking for element " << element);
-            tmp.start_timer();
             retcode = table.get_element(key, ele);
-            tmp.stop_timer();
-            all_retrievals.push_back(tmp);
-            if(longest_retrieval.value < tmp.value){
-                longest_retrieval = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-            REQUIRE(element==ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
         }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
 
         test_length.stop_timer();
-
     }
 
     SECTION("Cuckoo_Table_Test"){
-        test_name = "CK_LOADRESIZE";
+        test_name = "CK_COLLISION";
 
         test_length.start_timer();
 
-        Hash<unsigned> hash_function2 = Hash<unsigned>();
-        auto table = LoadResizingCK<unsigned, unsigned>(total_insertions, &hash_function, &hash_function2, max_load);
+        FNV1a<unsigned> hash_function2 = FNV1a<unsigned>();
+        hash_function2.seed = 1234567890;
+        auto table = BasicCuckoo<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
         base_memory_size.set_value((double) getMemory());
-        int retcode;
 
-        INFO("Inserting initial elements")
-        for(int i=0; i<(int) (max_load*total_insertions-1);++i){
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
 
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        INFO("Inserting element to trigger resize");
-        int index = (int)  (max_load*total_insertions-1);
-        key = numbers[index];
-        element = numbers[index];
-        resize_time.start_timer();
-        retcode = table.insert_element(key, element);
-        resize_time.stop_timer();
-        REQUIRE(retcode==SUCCESS);
-
-        INFO("Inserting remaining elements")
-        for(int i=(int) (max_load*total_insertions); i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             INFO("Inserting element " << element);
@@ -398,12 +478,11 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
@@ -426,8 +505,87 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        test_length.stop_timer();
+        memory_size.set_value((double) getMemory());
 
+        INFO("Inserting duplicate elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            retcode = table.insert_element(key, element);
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+
+        average_seconds=0;
+        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_retrievals.size();
+        average_retrieval.value = average_seconds;
+
+        INFO("Duplicating all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Checking for duplicate key " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
+            }
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_duplicate.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            retcode = table.get_element(key, ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
+        }
+
+        test_length.stop_timer();
     }
 
     statistics.push_back(test_length);
@@ -435,24 +593,26 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(resize_time);
+    statistics.push_back(longest_duplicate);
+    statistics.push_back(average_duplicate);
+    statistics.push_back(longest_removal);
+    statistics.push_back(average_removal);
+    statistics.push_back(init_memory_size);
     statistics.push_back(base_memory_size);
     statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();
+
 }
 
-
-TEST_CASE("Probe Resize Test", "[probe][resize]") {
-    unsigned total_insertions = 1000000;
-    int max_chain = (int) log2(total_insertions);
+TEST_CASE("Probe Resize Collision Test", "[probe][collision]") {
+    unsigned total_insertions = 10000;
     unsigned key;
     unsigned element;
-    FNV1a<unsigned> hash_function = FNV1a<unsigned>();
-    hash_function.seed = 1234567890;
+    Hash<unsigned> hash_function = Hash<unsigned>();
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/collision.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -468,23 +628,33 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
 
+    TestStatistic longest_duplicate = TestStatistic("Longest Duplicate Check", "Seconds");
+    TestStatistic average_duplicate = TestStatistic("Average Duplicate Check", "Seconds");
+    std::vector<TestStatistic> all_duplicates = std::vector<TestStatistic>();
+
+
+    TestStatistic longest_removal = TestStatistic("Longest Removal", "Seconds");
+    TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
+    std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
+
     TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
     TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
     TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
+    init_memory_size.set_value((double) getMemory());
 
-    SECTION("LinkedList_Test"){
-        test_name = "LL_PROBERESIZE";
+    SECTION("Chained_LL_Table_Test"){
+        test_name = "LL_PROBE_COLLISION";
 
         test_length.start_timer();
 
-        auto table = ProbeResizingLL<unsigned, unsigned>(total_insertions/8, &hash_function, max_chain);
+        auto table = ProbeResizingLL<unsigned,unsigned>(total_insertions, &hash_function);
         base_memory_size.set_value((double) getMemory());
-        int retcode;
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
 
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             INFO("Inserting element " << element);
@@ -506,12 +676,11 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
@@ -533,23 +702,212 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
+
+        memory_size.set_value((double) getMemory());
+
+        INFO("Duplicating all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Checking for duplicate key " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
+            }
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_duplicate.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            retcode = table.get_element(key, ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
+        }
+
+        test_length.stop_timer();
+    }
+    SECTION("Chained_BST_Table_Test"){
+        test_name = "BST_PROBE_COLLISION";
+
+        test_length.start_timer();
+
+        auto table = ProbeResizingBST<unsigned,unsigned>(total_insertions, &hash_function);
+        base_memory_size.set_value((double) getMemory());
+
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_insertions.push_back(tmp);
+            if(longest_inseration.value < tmp.value){
+                longest_inseration = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+
+        double average_seconds=0;
+        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_insertion.value = average_seconds;
+
+
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            tmp.start_timer();
+            retcode = table.get_element(key, ele);
+            tmp.stop_timer();
+            all_retrievals.push_back(tmp);
+            if(longest_retrieval.value < tmp.value){
+                longest_retrieval = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+            REQUIRE(element==ele);
+        }
+
+        average_seconds=0;
+        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_retrievals.size();
+        average_retrieval.value = average_seconds;
+
+        memory_size.set_value((double) getMemory());
+
+        INFO("Duplicating all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Checking for duplicate key " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
+            }
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_duplicate.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            retcode = table.get_element(key, ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
+        }
 
         test_length.stop_timer();
     }
 
-    SECTION("BST_Table_Test"){
-        test_name = "BST_PROBERESIZE";
+    SECTION("Robin_Hood_Hash_Table_Test"){
+        test_name = "RH_PROBE_COLLISION";
 
         test_length.start_timer();
 
-        auto table = ProbeResizingBST<unsigned, unsigned>(total_insertions/8, &hash_function, max_chain);
+        auto table = ProbeResizingRH<unsigned,unsigned>(total_insertions*2, &hash_function);
         base_memory_size.set_value((double) getMemory());
-        int retcode;
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
 
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             INFO("Inserting element " << element);
@@ -571,12 +929,11 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
@@ -599,89 +956,87 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        test_length.stop_timer();
+        memory_size.set_value((double) getMemory());
 
-    }
-
-    SECTION("Robin_Hood_Test"){
-        test_name = "RH_PROBERESIZE";
-        test_length.start_timer();
-
-        auto table = ProbeResizingRH<unsigned, unsigned>(total_insertions/8, &hash_function, max_chain);
-        base_memory_size.set_value((double) getMemory());
-        int retcode;
-
-        INFO("Inserting all elements")
+        INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
 
+            int retcode;
             key = numbers[i];
             element = numbers[i];
-            INFO("Inserting element " << element);
+            INFO("Checking for duplicate key " << element);
             tmp.start_timer();
             retcode = table.insert_element(key, element);
             tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
             }
-            REQUIRE(retcode==SUCCESS);
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
         }
-
-        double average_seconds=0;
-        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
             average_seconds += it.base()->value;
         }
         average_seconds = average_seconds / all_insertions.size();
 
-        average_insertion.value = average_seconds;
+        average_duplicate.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
-
-        INFO("Checking for all elements")
+        INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
 
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
             INFO("Checking for element " << element);
-            tmp.start_timer();
             retcode = table.get_element(key, ele);
-            tmp.stop_timer();
-            all_retrievals.push_back(tmp);
-            if(longest_retrieval.value < tmp.value){
-                longest_retrieval = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-            REQUIRE(element==ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
         }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
 
         test_length.stop_timer();
-
     }
 
     SECTION("Cuckoo_Table_Test"){
-        test_name = "CK_PROBERESIZE";
+        test_name = "CK_PROBE_COLLISION";
 
         test_length.start_timer();
 
-        Hash<unsigned> hash_function2 = Hash<unsigned>();
-        auto table = ProbeResizingCK<unsigned, unsigned>(total_insertions/8, &hash_function, &hash_function2, max_chain);
+        FNV1a<unsigned> hash_function2 = FNV1a<unsigned>();
+        hash_function2.seed = 1234567890;
+        auto table = ProbeResizingCK<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
         base_memory_size.set_value((double) getMemory());
-        int retcode;
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
 
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             INFO("Inserting element " << element);
@@ -703,12 +1058,11 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
+            int retcode;
             key = numbers[i];
             element = numbers[i];
             unsigned ele;
@@ -731,8 +1085,87 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        test_length.stop_timer();
+        memory_size.set_value((double) getMemory());
 
+        INFO("Inserting duplicate elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            retcode = table.insert_element(key, element);
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+
+        average_seconds=0;
+        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_retrievals.size();
+        average_retrieval.value = average_seconds;
+
+        INFO("Duplicating all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Checking for duplicate key " << element);
+            tmp.start_timer();
+            retcode = table.insert_element(key, element);
+            tmp.stop_timer();
+            all_duplicates.push_back(tmp);
+            if(longest_duplicate.value < tmp.value){
+                longest_duplicate = tmp;
+            }
+            REQUIRE(retcode==KEY_ALREADY_EXISTS);
+        }
+        average_seconds=0;
+        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_duplicate.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            retcode = table.remove_element(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+            REQUIRE(retcode==SUCCESS);
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            retcode = table.get_element(key, ele);
+            REQUIRE(retcode==KEY_NOT_FOUND);
+        }
+
+        test_length.stop_timer();
     }
 
     statistics.push_back(test_length);
@@ -740,317 +1173,15 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
+    statistics.push_back(longest_duplicate);
+    statistics.push_back(average_duplicate);
+    statistics.push_back(longest_removal);
+    statistics.push_back(average_removal);
     statistics.push_back(init_memory_size);
     statistics.push_back(base_memory_size);
     statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();
-}
 
-
-TEST_CASE("Combined Resize Test", "[combined][resize]") {
-    unsigned total_insertions = 1000000;
-    int max_chain = (int) log2(total_insertions);
-    double chain_max_load = 2.0;
-    double open_max_load = 0.9;
-    unsigned key;
-    unsigned element;
-    FNV1a<unsigned> hash_function = FNV1a<unsigned>();
-    hash_function.seed = 1234567890;
-
-    ifstream f("../TestData/random.txt");
-    istream_iterator<unsigned> start(f), end;
-    vector<unsigned> numbers(start, end);
-
-    std::string test_name;
-    std::vector<TestStatistic> statistics = std::vector<TestStatistic>();
-    TestStatistic test_length = TestStatistic("Total Time", "Seconds");
-
-    TestStatistic longest_inseration = TestStatistic("Longest Insertion", "Seconds");
-    TestStatistic average_insertion = TestStatistic("Average Insertion", "Seconds");
-    std::vector<TestStatistic> all_insertions = std::vector<TestStatistic>();
-
-    TestStatistic longest_retrieval = TestStatistic("Longest Retrieval", "Seconds");
-    TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
-    std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
-
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-
-    SECTION("LinkedList_Test"){
-        test_name = "LL_COMBINEDRESIZE";
-
-        test_length.start_timer();
-
-        auto table = CombinedResizingLL<unsigned, unsigned>(total_insertions/8, &hash_function, chain_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
-        int retcode;
-
-        INFO("Inserting all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        double average_seconds=0;
-        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
-
-        INFO("Checking for all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            unsigned ele;
-            INFO("Checking for element " << element);
-            tmp.start_timer();
-            retcode = table.get_element(key, ele);
-            tmp.stop_timer();
-            all_retrievals.push_back(tmp);
-            if(longest_retrieval.value < tmp.value){
-                longest_retrieval = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-            REQUIRE(element==ele);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        test_length.stop_timer();
-    }
-
-    SECTION("BST_Table_Test"){
-        test_name = "BST_COMBINEDRESIZE";
-
-        test_length.start_timer();
-
-        auto table = CombinedResizingBST<unsigned, unsigned>(total_insertions/8, &hash_function, chain_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
-        int retcode;
-
-        INFO("Inserting all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        double average_seconds=0;
-        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
-
-        INFO("Checking for all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            unsigned ele;
-            INFO("Checking for element " << element);
-            tmp.start_timer();
-            retcode = table.get_element(key, ele);
-            tmp.stop_timer();
-            all_retrievals.push_back(tmp);
-            if(longest_retrieval.value < tmp.value){
-                longest_retrieval = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-            REQUIRE(element==ele);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        test_length.stop_timer();
-
-    }
-
-    SECTION("Robin_Hood_Test"){
-        test_name = "RH_COMBINEDRESIZE";
-        test_length.start_timer();
-
-        auto table = CombinedResizingRH<unsigned, unsigned>(total_insertions/8, &hash_function, open_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
-        int retcode;
-
-        INFO("Inserting all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        double average_seconds=0;
-        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
-
-        INFO("Checking for all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            unsigned ele;
-            INFO("Checking for element " << element);
-            tmp.start_timer();
-            retcode = table.get_element(key, ele);
-            tmp.stop_timer();
-            all_retrievals.push_back(tmp);
-            if(longest_retrieval.value < tmp.value){
-                longest_retrieval = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-            REQUIRE(element==ele);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        test_length.stop_timer();
-
-    }
-
-    SECTION("Cuckoo_Table_Test"){
-        test_name = "CK_COMBINEDRESIZE";
-
-        test_length.start_timer();
-
-        Hash<unsigned> hash_function2 = Hash<unsigned>();
-        auto table = CombinedResizingCK<unsigned, unsigned>(total_insertions/8, &hash_function, &hash_function2, open_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
-        int retcode;
-
-        INFO("Inserting all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_insertions.push_back(tmp);
-            if(longest_inseration.value < tmp.value){
-                longest_inseration = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-        }
-
-        double average_seconds=0;
-        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
-
-        INFO("Checking for all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
-
-            key = numbers[i];
-            element = numbers[i];
-            unsigned ele;
-            INFO("Checking for element " << element);
-            tmp.start_timer();
-            retcode = table.get_element(key, ele);
-            tmp.stop_timer();
-            all_retrievals.push_back(tmp);
-            if(longest_retrieval.value < tmp.value){
-                longest_retrieval = tmp;
-            }
-            REQUIRE(retcode==SUCCESS);
-            REQUIRE(element==ele);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        test_length.stop_timer();
-
-    }
-
-    statistics.push_back(test_length);
-    statistics.push_back(longest_inseration);
-    statistics.push_back(average_insertion);
-    statistics.push_back(longest_retrieval);
-    statistics.push_back(average_retrieval);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
-
-    TestResults output = TestResults(test_name, statistics);
-    output.write_results();
 }

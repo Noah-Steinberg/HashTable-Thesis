@@ -55,8 +55,8 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
     std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
 
     TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
     TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
+    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
     init_memory_size.set_value((double) getMemory());
 
     SECTION("Chained_LL_Table_Test"){

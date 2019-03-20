@@ -15,11 +15,11 @@ Used for unit testing/profiling of table time complexity and memory usage.
 
 
 ### Refences:
-MD5 implementation based on: http://www.zedwood.com/article/cpp-md5-function
+MD5 algorithm from: http://www.zedwood.com/article/cpp-md5-function
 
-SIP implementation based on: https://github.com/whitfin/siphash-cpp
+SHA2 algorithm from: http://www.zedwood.com/article/cpp-sha256-function
 
 FNV1A implementation based on: https://create.stephan-brumme.com/fnv-hash/
 
-Memory Profiling based on: https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+Memory Profiling from: https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
 
