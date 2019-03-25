@@ -45,11 +45,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
 
-    TestStatistic longest_duplicate = TestStatistic("Longest Duplicate Check", "Seconds");
-    TestStatistic average_duplicate = TestStatistic("Average Duplicate Check", "Seconds");
-    std::vector<TestStatistic> all_duplicates = std::vector<TestStatistic>();
-
-
     TestStatistic longest_removal = TestStatistic("Longest Removal", "Seconds");
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
     std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
@@ -114,30 +109,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -237,30 +208,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -361,30 +308,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -487,47 +410,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Inserting duplicate elements")
-        for(int i=0; i<total_insertions;++i){
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            retcode = table.insert_element(key, element);
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -573,8 +455,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(longest_duplicate);
-    statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
 
@@ -605,10 +485,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
     TestStatistic longest_retrieval = TestStatistic("Longest Retrieval", "Seconds");
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
-
-    TestStatistic longest_duplicate = TestStatistic("Longest Duplicate Check", "Seconds");
-    TestStatistic average_duplicate = TestStatistic("Average Duplicate Check", "Seconds");
-    std::vector<TestStatistic> all_duplicates = std::vector<TestStatistic>();
 
 
     TestStatistic longest_removal = TestStatistic("Longest Removal", "Seconds");
@@ -676,30 +552,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -799,30 +651,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -923,30 +751,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1048,47 +852,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Inserting duplicate elements")
-        for(int i=0; i<total_insertions;++i){
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            retcode = table.insert_element(key, element);
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1134,8 +897,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(longest_duplicate);
-    statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
 
@@ -1165,11 +926,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
     TestStatistic longest_retrieval = TestStatistic("Longest Retrieval", "Seconds");
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
-
-    TestStatistic longest_duplicate = TestStatistic("Longest Duplicate Check", "Seconds");
-    TestStatistic average_duplicate = TestStatistic("Average Duplicate Check", "Seconds");
-    std::vector<TestStatistic> all_duplicates = std::vector<TestStatistic>();
-
 
     TestStatistic longest_removal = TestStatistic("Longest Removal", "Seconds");
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
@@ -1235,31 +991,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1358,31 +1089,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1483,30 +1189,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1608,48 +1290,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Inserting duplicate elements")
-        for(int i=0; i<total_insertions;++i){
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            retcode = table.insert_element(key, element);
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
-
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
@@ -1694,8 +1334,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(longest_duplicate);
-    statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
 
@@ -1725,11 +1363,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
     TestStatistic longest_retrieval = TestStatistic("Longest Retrieval", "Seconds");
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
-
-    TestStatistic longest_duplicate = TestStatistic("Longest Duplicate Check", "Seconds");
-    TestStatistic average_duplicate = TestStatistic("Average Duplicate Check", "Seconds");
-    std::vector<TestStatistic> all_duplicates = std::vector<TestStatistic>();
-
 
     TestStatistic longest_removal = TestStatistic("Longest Removal", "Seconds");
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
@@ -1795,31 +1428,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1918,32 +1526,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -2044,32 +1626,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
-
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
@@ -2169,48 +1725,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        INFO("Inserting duplicate elements")
-        for(int i=0; i<total_insertions;++i){
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            retcode = table.insert_element(key, element);
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
-
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
@@ -2255,8 +1769,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(longest_duplicate);
-    statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
 

@@ -5,6 +5,8 @@
 #include <iterator>
 #include <iostream>
 
+#include <unordered_map>
+
 #include <sparsehash/sparse_hash_map>
 #include <sparsehash/dense_hash_map>
 
@@ -152,6 +154,23 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
         auto table = google::dense_hash_map<unsigned,unsigned>(1000);
         table.set_empty_key(0);
         table.set_deleted_key(1);
+
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            table[key] = element;
+        }
+
+
+        test_length.stop_timer();
+    }
+
+    SECTION("std_hash_map"){
+        test_name = "std_hash_map_INSERT_STRESS";
+
+        test_length.start_timer();
+        auto table = std::unordered_map<unsigned,unsigned>(1000);
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -349,6 +368,34 @@ TEST_CASE("Retrieval Stress Test", "[retrieval][stress]") {
         auto table = google::dense_hash_map<unsigned,unsigned>(total_insertions);
         table.set_empty_key(0);
         table.set_deleted_key(1);
+
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            table[key] = element;
+        }
+
+        test_length.start_timer();
+        INFO("Retrieval elements")
+        for(int i=0; i<total_insertions*100;++i){
+            int j = i % total_insertions;
+            int retcode;
+            unsigned ele;
+            key = numbers[j];
+            element = numbers[j];
+            INFO("Retrieving element " << j);
+            ele = table[key];
+            REQUIRE(element==ele);
+        }
+        test_length.stop_timer();
+    }
+
+    SECTION("std_hash_map"){
+        test_name = "std_hash_map_retrieval_STRESS";
+
+        test_length.start_timer();
+        auto table = std::unordered_map<unsigned,unsigned>(total_insertions);
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -578,6 +625,39 @@ TEST_CASE("Removal Stress Test", "[removal][stress]") {
         auto table = google::dense_hash_map<unsigned,unsigned>(total_insertions);
         table.set_empty_key(0);
         table.set_deleted_key(1);
+
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << i);
+            table[key] = element;
+        }
+        test_length.start_timer();
+        INFO("Performing repeated insertion and removal")
+        for(int i=0; i<20;i++){
+            for(int j=total_insertions+(removal_amount*i);j<total_insertions+(removal_amount*(i+1));++j){
+                int retcode;
+                key = numbers[j];
+                element = numbers[j];
+                table[key] = element;
+            }
+            for(int j=total_insertions+(removal_amount*i);j<total_insertions+(removal_amount*(i+1));++j){
+                int retcode;
+                key = numbers[j];
+                table.erase(key);
+            }
+        }
+        test_length.stop_timer();
+    }
+
+    SECTION("std_hash_map"){
+        test_name = "std_hash_map_removal_STRESS";
+
+        test_length.start_timer();
+        auto table = std::unordered_map<unsigned,unsigned>(total_insertions);
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){

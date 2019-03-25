@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iterator>
 #include <iostream>
+#include <unordered_map>
 
 #include <sparsehash/sparse_hash_map>
 #include <sparsehash/dense_hash_map>
@@ -42,7 +43,6 @@ TEST_CASE("Memory Test", "[memory]") {
     TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
     TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
     init_memory_size.set_value((double) getMemory());
-
 
     SECTION("Chained_LL_Table_Test"){
         test_name = "LL_MEM";
@@ -110,7 +110,6 @@ TEST_CASE("Memory Test", "[memory]") {
 
         memory_size.set_value((double) getMemory());
     }
-
     SECTION("Robin_Hood_Hash_Table_Test"){
         test_name = "RH_MEM";
 
@@ -146,6 +145,7 @@ TEST_CASE("Memory Test", "[memory]") {
         memory_size.set_value((double) getMemory());
     }
 
+
     SECTION("Cuckoo_Table_Test"){
         test_name = "CK_MEM";
 
@@ -179,6 +179,7 @@ TEST_CASE("Memory Test", "[memory]") {
 
         memory_size.set_value((double) getMemory());
     }
+
 
     SECTION("sparse_hash_map"){
         test_name = "sparse_hash_map_MEM";
@@ -217,6 +218,35 @@ TEST_CASE("Memory Test", "[memory]") {
         auto table = google::dense_hash_map<unsigned,unsigned>(total_insertions);
         table.set_deleted_key(0);
         table.set_empty_key(1);
+        base_memory_size.set_value((double) getMemory());
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            table[key] = element;
+        }
+
+
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            ele = table[key];
+            REQUIRE(element==ele);
+        }
+
+        memory_size.set_value((double) getMemory());
+
+    }
+
+    SECTION("std_hash_map"){
+        test_name = "std_hash_map_MEM";
+
+
+        auto table = std::unordered_map<unsigned,unsigned>(total_insertions);
         base_memory_size.set_value((double) getMemory());
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
