@@ -40,7 +40,7 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
     FNV1a<unsigned> hash_function = FNV1a<unsigned>();
     hash_function.seed = 1234567890;
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -58,18 +58,12 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
 
     TestStatistic resize_time = TestStatistic("Resize Time", "Seconds");
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-    init_memory_size.set_value((double) getMemory());
-
     SECTION("LinkedList_Test"){
         test_name = "LL_LOADRESIZE";
 
         test_length.start_timer();
 
         auto table = LoadResizingLL<unsigned, unsigned>(total_insertions, &hash_function, max_load);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting initial elements")
@@ -122,8 +116,6 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -160,7 +152,6 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         test_length.start_timer();
 
         auto table = LoadResizingBST<unsigned, unsigned>(total_insertions, &hash_function, max_load);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting initial elements")
@@ -213,8 +204,6 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -251,7 +240,6 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         test_length.start_timer();
 
         auto table = LoadResizingRH<unsigned, unsigned>(total_insertions, &hash_function, max_load);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting initial elements")
@@ -304,8 +292,6 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -344,7 +330,7 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = LoadResizingCK<unsigned, unsigned>(total_insertions, &hash_function, &hash_function2, max_load);
-        base_memory_size.set_value((double) getMemory());
+
         int retcode;
 
         INFO("Inserting initial elements")
@@ -398,8 +384,6 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
-
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
@@ -436,8 +420,6 @@ TEST_CASE("Load Resize Test", "[load][resize]") {
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
     statistics.push_back(resize_time);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();
@@ -452,7 +434,7 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
     FNV1a<unsigned> hash_function = FNV1a<unsigned>();
     hash_function.seed = 1234567890;
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -468,17 +450,12 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-
     SECTION("LinkedList_Test"){
         test_name = "LL_PROBERESIZE";
 
         test_length.start_timer();
 
         auto table = ProbeResizingLL<unsigned, unsigned>(total_insertions/8, &hash_function, max_chain);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting all elements")
@@ -505,8 +482,6 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -543,7 +518,7 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         test_length.start_timer();
 
         auto table = ProbeResizingBST<unsigned, unsigned>(total_insertions/8, &hash_function, max_chain);
-        base_memory_size.set_value((double) getMemory());
+
         int retcode;
 
         INFO("Inserting all elements")
@@ -570,8 +545,6 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -608,7 +581,6 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         test_length.start_timer();
 
         auto table = ProbeResizingRH<unsigned, unsigned>(total_insertions/8, &hash_function, max_chain);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting all elements")
@@ -635,8 +607,6 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -675,7 +645,6 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = ProbeResizingCK<unsigned, unsigned>(total_insertions/8, &hash_function, &hash_function2, max_chain);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting all elements")
@@ -702,8 +671,6 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -740,9 +707,6 @@ TEST_CASE("Probe Resize Test", "[probe][resize]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();
@@ -759,7 +723,7 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
     FNV1a<unsigned> hash_function = FNV1a<unsigned>();
     hash_function.seed = 1234567890;
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -775,17 +739,12 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-
     SECTION("LinkedList_Test"){
         test_name = "LL_COMBINEDRESIZE";
 
         test_length.start_timer();
 
         auto table = CombinedResizingLL<unsigned, unsigned>(total_insertions/8, &hash_function, chain_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting all elements")
@@ -812,8 +771,6 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -850,7 +807,7 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
         test_length.start_timer();
 
         auto table = CombinedResizingBST<unsigned, unsigned>(total_insertions/8, &hash_function, chain_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
+
         int retcode;
 
         INFO("Inserting all elements")
@@ -878,7 +835,6 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -915,7 +871,6 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
         test_length.start_timer();
 
         auto table = CombinedResizingRH<unsigned, unsigned>(total_insertions/8, &hash_function, open_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting all elements")
@@ -943,7 +898,6 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
 
         average_insertion.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -982,7 +936,6 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = CombinedResizingCK<unsigned, unsigned>(total_insertions/8, &hash_function, &hash_function2, open_max_load, max_chain);
-        base_memory_size.set_value((double) getMemory());
         int retcode;
 
         INFO("Inserting all elements")
@@ -1009,8 +962,6 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
         average_seconds = average_seconds / all_insertions.size();
 
         average_insertion.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Checking for all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1047,9 +998,6 @@ TEST_CASE("Combined Resize Test", "[combined][resize]") {
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();

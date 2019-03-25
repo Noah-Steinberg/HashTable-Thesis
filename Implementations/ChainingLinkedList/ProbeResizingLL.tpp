@@ -19,28 +19,28 @@ ProbeResizingLL<K,E>::ProbeResizingLL(unsigned numSlots, Hash<K> *hash, int maxC
 
 template<class K, class E>
 HashSlot<K,E>& ProbeResizingLL<K,E>::get_slot(unsigned hash, K& key, int& retcode)  {
-    getSlot:
-        retcode = KEY_NOT_FOUND;
-        hash = hash % this->numSlots;
+    retcode = KEY_NOT_FOUND;
+    hash = hash % this->numSlots;
 
-        if(this->slots[hash].empty()){
-            this->slots[hash].push_front(HashSlot<K,E>());
-            return this->slots[hash].front();
-        }
-        else{
-            int counter = 0;
-            for (auto& ele: this->slots[hash]){
-                if(ele.get_key()==key){
-                    retcode = KEY_ALREADY_EXISTS;
-                    return ele;
-                }
-                counter++;
-                if(counter>=this->maxChain){
-                    this->resize();
-                    goto getSlot;
-                }
+    if(this->slots[hash].empty()){
+        this->slots[hash].push_front(HashSlot<K,E>());
+        return this->slots[hash].front();
+    }
+    else{
+        int counter = 0;
+        for (auto& ele: this->slots[hash]){
+            if(ele.get_key()==key){
+                retcode = KEY_ALREADY_EXISTS;
+                return ele;
             }
-            this->slots[hash].push_front(HashSlot<K,E>());
-            return this->slots[hash].front();
+            counter++;
+            if(counter>=this->maxChain){
+                this->resize();
+                hash = this->hash->digest(key);
+                return this->get_slot(hash, key, retcode);
+            }
         }
+        this->slots[hash].push_front(HashSlot<K,E>());
+        return this->slots[hash].front();
+    }
 }

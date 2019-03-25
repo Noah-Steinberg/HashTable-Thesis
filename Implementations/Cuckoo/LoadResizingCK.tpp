@@ -28,6 +28,7 @@ int LoadResizingCK<K,E>::insert_element(K &key, E &element){
     unsigned i2 = hash2 % this->numSlots;
     CuckooHashSlot<K,E> tmpSlot;
     bool swapFirst = true;
+    bool resizeFlag = false;
 
     if(this->slots1[i].get_key()==key || this->slots2[i2].get_key()==key){
         return KEY_ALREADY_EXISTS;
@@ -35,11 +36,20 @@ int LoadResizingCK<K,E>::insert_element(K &key, E &element){
 
     this->numElements++;
     if(this->numElements>=(int) (this->loadPercent*this->numSlots)){
-        this->resize();
-        goto insertElement;
+        resizeFlag = true;
+        for(int j=0; j<this->numSlots;j++){
+            if(this->slots1[j].is_empty()){
+                this->slots1[j] = newSlot;
+                break;
+            }
+            else if(this->slots2[j].is_empty()){
+                this->slots2[j] = newSlot;
+                break;
+            }
+        }
     }
 
-    while(true){
+    while(!resizeFlag){
         if(this->slots1[i].is_empty()){
             this->slots1[i] = newSlot;
             break;
@@ -66,6 +76,9 @@ int LoadResizingCK<K,E>::insert_element(K &key, E &element){
                 swapFirst = true;
             }
         }
+    }
+    if(resizeFlag){
+        this->resize();
     }
 
     return retval;

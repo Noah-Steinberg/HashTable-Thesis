@@ -29,7 +29,7 @@ TEST_CASE("std::hash Test", "[hash][std]") {
     unsigned element;
     Hash<unsigned> hash_function = Hash<unsigned>();
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -54,18 +54,12 @@ TEST_CASE("std::hash Test", "[hash][std]") {
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
     std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-    init_memory_size.set_value((double) getMemory());
-
     SECTION("Chained_LL_Table_Test"){
         test_name = "LL_STDHash";
 
         test_length.start_timer();
 
         auto table = BasicChainingLinkedList<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -119,8 +113,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -191,7 +183,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         test_length.start_timer();
 
         auto table = BasicChainingBST<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -245,8 +236,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -318,7 +307,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         test_length.start_timer();
 
         auto table = BasicRobinHood<unsigned,unsigned>(total_insertions*2, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -372,8 +360,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -447,7 +433,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         FNV1a<unsigned> hash_function2 = FNV1a<unsigned>();
         hash_function2.seed = 1234567890;
         auto table = BasicCuckoo<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -501,8 +486,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Inserting duplicate elements")
         for(int i=0; i<total_insertions;++i){
@@ -594,9 +577,6 @@ TEST_CASE("std::hash Test", "[hash][std]") {
     statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();
@@ -610,7 +590,7 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
     FNV1a<unsigned> hash_function = FNV1a<unsigned>();
     hash_function.seed = 1234567890;
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -635,10 +615,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
     std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-    init_memory_size.set_value((double) getMemory());
 
     SECTION("Chained_LL_Table_Test"){
         test_name = "LL_FNV1AHash";
@@ -646,7 +622,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         test_length.start_timer();
 
         auto table = BasicChainingLinkedList<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -700,8 +675,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -772,7 +745,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         test_length.start_timer();
 
         auto table = BasicChainingBST<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -826,8 +798,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -899,7 +869,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         test_length.start_timer();
 
         auto table = BasicRobinHood<unsigned,unsigned>(total_insertions*2, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -953,8 +922,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1027,7 +994,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = BasicCuckoo<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1081,8 +1047,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Inserting duplicate elements")
         for(int i=0; i<total_insertions;++i){
@@ -1174,9 +1138,6 @@ TEST_CASE("FNV1A Test", "[hash][fnv1a]") {
     statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();
@@ -1189,7 +1150,7 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
     unsigned element;
     MD5<unsigned> hash_function = MD5<unsigned>();
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -1214,10 +1175,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
     std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-    init_memory_size.set_value((double) getMemory());
 
     SECTION("Chained_LL_Table_Test"){
         test_name = "LL_MD5Hash";
@@ -1225,7 +1182,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         test_length.start_timer();
 
         auto table = BasicChainingLinkedList<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1279,8 +1235,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1351,7 +1305,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         test_length.start_timer();
 
         auto table = BasicChainingBST<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1405,8 +1358,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1478,7 +1429,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         test_length.start_timer();
 
         auto table = BasicRobinHood<unsigned,unsigned>(total_insertions*2, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1532,8 +1482,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1606,7 +1554,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = BasicCuckoo<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1660,8 +1607,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Inserting duplicate elements")
         for(int i=0; i<total_insertions;++i){
@@ -1753,9 +1698,6 @@ TEST_CASE("MD5 Test", "[hash][md5]") {
     statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();
@@ -1768,7 +1710,7 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
     unsigned element;
     SHA2<unsigned> hash_function = SHA2<unsigned>();
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -1793,10 +1735,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
     std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-    init_memory_size.set_value((double) getMemory());
 
     SECTION("Chained_LL_Table_Test"){
         test_name = "LL_SHA2Hash";
@@ -1804,7 +1742,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         test_length.start_timer();
 
         auto table = BasicChainingLinkedList<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1858,8 +1795,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1930,7 +1865,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         test_length.start_timer();
 
         auto table = BasicChainingBST<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -1985,7 +1919,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -2057,7 +1990,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         test_length.start_timer();
 
         auto table = BasicRobinHood<unsigned,unsigned>(total_insertions*2, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -2112,7 +2044,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
 
         INFO("Duplicating all elements")
         for(int i=0; i<total_insertions;++i){
@@ -2185,8 +2116,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = BasicCuckoo<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
-        base_memory_size.set_value((double) getMemory());
-
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
@@ -2239,8 +2168,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
 
         INFO("Inserting duplicate elements")
         for(int i=0; i<total_insertions;++i){
@@ -2332,9 +2259,6 @@ TEST_CASE("SHA256 Test", "[hash][sha2]") {
     statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
     statistics.push_back(average_removal);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();

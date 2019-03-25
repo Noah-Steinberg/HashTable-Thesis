@@ -7,6 +7,9 @@
 #include <iterator>
 #include <iostream>
 
+#include <sparsehash/sparse_hash_map>
+#include <sparsehash/dense_hash_map>
+
 #include "../Util/enums.h"
 
 #include "../Implementations/ChainingLinkedList/BasicChainingLinkedList.h"
@@ -29,7 +32,7 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
     FNV1a<unsigned> hash_function = FNV1a<unsigned>();
     hash_function.seed = 1234567890;
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -45,19 +48,11 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
     TestStatistic average_retrieval = TestStatistic("Average Retrieval", "Seconds");
     std::vector<TestStatistic> all_retrievals = std::vector<TestStatistic>();
 
-    TestStatistic longest_duplicate = TestStatistic("Longest Duplicate Check", "Seconds");
-    TestStatistic average_duplicate = TestStatistic("Average Duplicate Check", "Seconds");
-    std::vector<TestStatistic> all_duplicates = std::vector<TestStatistic>();
-
 
     TestStatistic longest_removal = TestStatistic("Longest Removal", "Seconds");
     TestStatistic average_removal = TestStatistic("Average Removal", "Seconds");
     std::vector<TestStatistic> all_removals = std::vector<TestStatistic>();
 
-    TestStatistic memory_size = TestStatistic("Max Memory Usage", "KiloBytes");
-    TestStatistic init_memory_size = TestStatistic("Initial Memory Usage", "KiloBytes");
-    TestStatistic base_memory_size = TestStatistic("Table Base Memory Usage", "KiloBytes");
-    init_memory_size.set_value((double) getMemory());
 
     SECTION("Chained_LL_Table_Test"){
         test_name = "LL_BASIC";
@@ -65,7 +60,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         test_length.start_timer();
 
         auto table = BasicChainingLinkedList<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -119,33 +113,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -191,7 +158,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         test_length.start_timer();
 
         auto table = BasicChainingBST<unsigned,unsigned>(total_insertions, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -245,33 +211,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -318,7 +257,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         test_length.start_timer();
 
         auto table = BasicRobinHood<unsigned,unsigned>(total_insertions*2, &hash_function);
-        base_memory_size.set_value((double) getMemory());
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -372,33 +310,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         }
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
-
-        memory_size.set_value((double) getMemory());
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
 
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
@@ -446,8 +357,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = BasicCuckoo<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
-        base_memory_size.set_value((double) getMemory());
-
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
@@ -501,50 +410,6 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         average_seconds = average_seconds / all_retrievals.size();
         average_retrieval.value = average_seconds;
 
-        memory_size.set_value((double) getMemory());
-
-        INFO("Inserting duplicate elements")
-        for(int i=0; i<total_insertions;++i){
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Inserting element " << element);
-            retcode = table.insert_element(key, element);
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-
-        average_seconds=0;
-        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_retrievals.size();
-        average_retrieval.value = average_seconds;
-
-        INFO("Duplicating all elements")
-        for(int i=0; i<total_insertions;++i){
-            TestStatistic tmp = TestStatistic("Longest Duplication Check", "Seconds");
-
-            int retcode;
-            key = numbers[i];
-            element = numbers[i];
-            INFO("Checking for duplicate key " << element);
-            tmp.start_timer();
-            retcode = table.insert_element(key, element);
-            tmp.stop_timer();
-            all_duplicates.push_back(tmp);
-            if(longest_duplicate.value < tmp.value){
-                longest_duplicate = tmp;
-            }
-            REQUIRE(retcode==KEY_ALREADY_EXISTS);
-        }
-        average_seconds=0;
-        for(auto it = all_duplicates.begin(); it!=all_duplicates.end(); ++it){
-            average_seconds += it.base()->value;
-        }
-        average_seconds = average_seconds / all_insertions.size();
-
-        average_duplicate.value = average_seconds;
-
         INFO("Removing all elements")
         for(int i=0; i<total_insertions;++i){
             TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
@@ -584,18 +449,198 @@ TEST_CASE("Basic Sanity Test", "[basic]") {
         test_length.stop_timer();
     }
 
+    SECTION("sparse_hash_map_Test"){
+        test_name = "sparse_hash_map_BASIC";
+
+        test_length.start_timer();
+
+        auto table = google::sparse_hash_map<unsigned,unsigned>(total_insertions);
+        table.set_deleted_key(0);
+
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            tmp.start_timer();
+            table[key] = element;
+            tmp.stop_timer();
+            all_insertions.push_back(tmp);
+            if(longest_inseration.value < tmp.value){
+                longest_inseration = tmp;
+            }
+        }
+
+        double average_seconds=0;
+        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_insertion.value = average_seconds;
+
+
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            tmp.start_timer();
+            ele = table[key];
+            tmp.stop_timer();
+            all_retrievals.push_back(tmp);
+            if(longest_retrieval.value < tmp.value){
+                longest_retrieval = tmp;
+            }
+            REQUIRE(element==ele);
+        }
+
+        average_seconds=0;
+        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_retrievals.size();
+        average_retrieval.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            table.erase(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            ele = table[key];
+            REQUIRE(0==ele);
+        }
+
+        test_length.stop_timer();
+    }
+    SECTION("dense_hash_map_Test"){
+        test_name = "dense_hash_map_BASIC";
+
+        test_length.start_timer();
+
+        auto table = google::dense_hash_map<unsigned,unsigned>(total_insertions);
+        table.set_deleted_key(0);
+        table.set_empty_key(1);
+
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Insertion", "Seconds");
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            tmp.start_timer();
+            table[key] = element;
+            tmp.stop_timer();
+            all_insertions.push_back(tmp);
+            if(longest_inseration.value < tmp.value){
+                longest_inseration = tmp;
+            }
+        }
+
+        double average_seconds=0;
+        for(auto it = all_insertions.begin(); it!=all_insertions.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_insertions.size();
+
+        average_insertion.value = average_seconds;
+
+
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Retrieval", "Seconds");
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            tmp.start_timer();
+            ele = table[key];
+            tmp.stop_timer();
+            all_retrievals.push_back(tmp);
+            if(longest_retrieval.value < tmp.value){
+                longest_retrieval = tmp;
+            }
+            REQUIRE(element==ele);
+        }
+
+        average_seconds=0;
+        for(auto it = all_retrievals.begin(); it!=all_retrievals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_retrievals.size();
+        average_retrieval.value = average_seconds;
+
+        INFO("Removing all elements")
+        for(int i=0; i<total_insertions;++i){
+            TestStatistic tmp = TestStatistic("Longest Removal", "Seconds");
+            int retcode;
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Removing element " << element);
+            tmp.start_timer();
+            table.erase(key);
+            tmp.stop_timer();
+            all_removals.push_back(tmp);
+            if(longest_removal.value < tmp.value){
+                longest_removal = tmp;
+            }
+        }
+        average_seconds=0;
+        for(auto it = all_removals.begin(); it!=all_removals.end(); ++it){
+            average_seconds += it.base()->value;
+        }
+        average_seconds = average_seconds / all_removals.size();
+
+        average_removal.value = average_seconds;
+
+        INFO("Confirming removal of all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            ele = table[key];
+            REQUIRE(0==ele);
+        }
+
+        test_length.stop_timer();
+    }
+
     statistics.push_back(test_length);
     statistics.push_back(longest_inseration);
     statistics.push_back(average_insertion);
     statistics.push_back(longest_retrieval);
     statistics.push_back(average_retrieval);
-    statistics.push_back(longest_duplicate);
-    statistics.push_back(average_duplicate);
     statistics.push_back(longest_removal);
-    statistics.push_back(average_removal);
-    statistics.push_back(init_memory_size);
-    statistics.push_back(base_memory_size);
-    statistics.push_back(memory_size);
 
     TestResults output = TestResults(test_name, statistics);
     output.write_results();

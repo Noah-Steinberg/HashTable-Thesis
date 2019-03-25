@@ -7,6 +7,9 @@
 #include <iterator>
 #include <iostream>
 
+#include <sparsehash/sparse_hash_map>
+#include <sparsehash/dense_hash_map>
+
 #include "../Util/enums.h"
 
 #include "../Implementations/ChainingLinkedList/BasicChainingLinkedList.h"
@@ -29,7 +32,7 @@ TEST_CASE("Memory Test", "[memory]") {
     FNV1a<unsigned> hash_function = FNV1a<unsigned>();
     hash_function.seed = 1234567890;
 
-    ifstream f("../TestData/random.txt");
+    ifstream f("../TestData/random_medium.txt");
     istream_iterator<unsigned> start(f), end;
     vector<unsigned> numbers(start, end);
 
@@ -42,7 +45,7 @@ TEST_CASE("Memory Test", "[memory]") {
 
 
     SECTION("Chained_LL_Table_Test"){
-        test_name = "LL_BASIC";
+        test_name = "LL_MEM";
 
 
         auto table = BasicChainingLinkedList<unsigned,unsigned>(total_insertions, &hash_function);
@@ -74,8 +77,9 @@ TEST_CASE("Memory Test", "[memory]") {
         memory_size.set_value((double) getMemory());
 
     }
+
     SECTION("Chained_BST_Table_Test") {
-        test_name = "BST_BASIC";
+        test_name = "BST_MEM";
 
         auto table = BasicChainingBST<unsigned, unsigned>(total_insertions, &hash_function);
         base_memory_size.set_value((double) getMemory());
@@ -108,7 +112,7 @@ TEST_CASE("Memory Test", "[memory]") {
     }
 
     SECTION("Robin_Hood_Hash_Table_Test"){
-        test_name = "RH_BASIC";
+        test_name = "RH_MEM";
 
         auto table = BasicRobinHood<unsigned,unsigned>(total_insertions*2, &hash_function);
         base_memory_size.set_value((double) getMemory());
@@ -143,7 +147,7 @@ TEST_CASE("Memory Test", "[memory]") {
     }
 
     SECTION("Cuckoo_Table_Test"){
-        test_name = "CK_BASIC";
+        test_name = "CK_MEM";
 
         Hash<unsigned> hash_function2 = Hash<unsigned>();
         auto table = BasicCuckoo<unsigned,unsigned>(total_insertions, &hash_function, &hash_function2);
@@ -174,6 +178,67 @@ TEST_CASE("Memory Test", "[memory]") {
         }
 
         memory_size.set_value((double) getMemory());
+    }
+
+    SECTION("sparse_hash_map"){
+        test_name = "sparse_hash_map_MEM";
+
+
+        auto table = google::sparse_hash_map<unsigned,unsigned>(total_insertions);
+        table.set_deleted_key(0);
+        base_memory_size.set_value((double) getMemory());
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            table[key] = element;
+        }
+
+
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            ele = table[key];
+            REQUIRE(element==ele);
+        }
+
+        memory_size.set_value((double) getMemory());
+
+    }
+
+    SECTION("dense_hash_map"){
+        test_name = "dense_hash_map_MEM";
+
+
+        auto table = google::dense_hash_map<unsigned,unsigned>(total_insertions);
+        table.set_deleted_key(0);
+        table.set_empty_key(1);
+        base_memory_size.set_value((double) getMemory());
+        INFO("Inserting all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            INFO("Inserting element " << element);
+            table[key] = element;
+        }
+
+
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            key = numbers[i];
+            element = numbers[i];
+            unsigned ele;
+            INFO("Checking for element " << element);
+            ele = table[key];
+            REQUIRE(element==ele);
+        }
+
+        memory_size.set_value((double) getMemory());
+
     }
 
     statistics.push_back(init_memory_size);

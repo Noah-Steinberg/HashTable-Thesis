@@ -38,6 +38,16 @@ int CombinedResizingCK<K,E>::insert_element(K &key, E &element){
     this->numElements++;
     if(this->numElements>=(int) (this->loadPercent*this->numSlots)){
         resizeFlag = true;
+        for(int j=0; j<this->numSlots;j++){
+            if(this->slots1[j].is_empty()){
+                this->slots1[j] = newSlot;
+                break;
+            }
+            else if(this->slots2[j].is_empty()){
+                this->slots2[j] = newSlot;
+                break;
+            }
+        }
     }
 
     int counter=0;

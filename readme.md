@@ -11,7 +11,14 @@ Build in CLion by IntelliJ using CMAKE
 #### catch2:
 Catch2 stands for C++ Automated Test Cases in a Header and is a multi-paradigm test framework for C++. which also supports Objective-C (and maybe C). It is primarily distributed as a single header file, although certain extensions may require additional headers.
 https://github.com/catchorg/Catch2
+
 Used for unit testing/profiling of table time complexity and memory usage.
+
+#### sparsehash:
+sparsehash is a hash table implementation created by google.
+https://github.com/sparsehash/sparsehash 
+
+Used for comparison purposes to created tables.
 
 
 ### Refences:
