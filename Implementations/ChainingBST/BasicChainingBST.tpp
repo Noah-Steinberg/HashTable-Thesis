@@ -47,7 +47,7 @@ int BasicChainingBST<K,E>::resize(){
         this->slots[i].moveTree(oldSlots[i]);
     }
 
-    this->numSlots += this->numSlots;
+    this->numSlots *= this->resizeFactor;
     this->slots = vector<BSTTree<K,E>>(this->numSlots);
     this->numElements = 0;
 

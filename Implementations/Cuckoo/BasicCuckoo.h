@@ -20,6 +20,7 @@ protected:
     Hash<K>* hash2;
     int numSlots;
     int numElements;
+    int resizeFactor = 5;
     std::vector<CuckooHashSlot<K,E>>  slots1;
     std::vector<CuckooHashSlot<K,E>>  slots2;
     CuckooHashSlot<K,E>& get_slot(unsigned, unsigned, K&, int&);

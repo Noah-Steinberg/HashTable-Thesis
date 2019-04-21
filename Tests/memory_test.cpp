@@ -20,7 +20,7 @@
 
 #include "../HashFunctions/FNV1a.h"
 
-#include "catch.hpp"
+#include "../Dependencies/catch.hpp"
 #include "../Util/TestStatistic.h"
 #include "../Util/TestResults.h"
 #include "../Util/MemorySize.h"

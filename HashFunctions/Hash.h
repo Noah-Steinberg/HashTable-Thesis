@@ -6,6 +6,7 @@
 #define HASHTABLE_THESIS_HASHFUNCTION_H
 #include <cstdlib>
 #include <functional>
+
 using namespace std;
 template<class K>
 class Hash{
@@ -20,7 +21,7 @@ public:
         this->digestSize = digestSize;
     }
     virtual unsigned digest(K data){
-        return (unsigned) data;
+        return (unsigned) std::hash<K>{}(data);
     }
 };
 

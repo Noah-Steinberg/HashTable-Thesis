@@ -17,7 +17,7 @@
 #include "../HashFunctions/MD5.h"
 #include "../HashFunctions/SHA2.h"
 
-#include "catch.hpp"
+#include "../Dependencies/catch.hpp"
 #include "../Util/TestStatistic.h"
 #include "../Util/TestResults.h"
 #include "../Util/MemorySize.h"

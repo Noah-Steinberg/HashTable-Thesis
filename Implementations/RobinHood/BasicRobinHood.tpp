@@ -82,7 +82,7 @@ int BasicRobinHood<K,E>::insert_element(K &key, E &element, bool update){
 template<class K, class E>
 int BasicRobinHood<K,E>::resize() {
     std::vector<HashSlot<K,E>> oldSlots = this->slots;
-    this->numSlots += this->numSlots;
+    this->numSlots *= this->resizeFactor;
     this->slots = std::vector<HashSlot<K,E>>(this->numSlots);
 
     HashSlot<K,E> curr;

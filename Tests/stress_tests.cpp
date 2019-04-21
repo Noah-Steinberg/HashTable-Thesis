@@ -12,6 +12,11 @@
 
 #include "../Util/enums.h"
 
+#include "../Implementations/ChainingLinkedList/BasicChainingLinkedList.h"
+#include "../Implementations/ChainingBST/BasicChainingBST.h"
+#include "../Implementations/RobinHood/BasicRobinHood.h"
+#include "../Implementations/Cuckoo/BasicCuckoo.h"
+
 #include "../Implementations/ChainingLinkedList/CombinedResizingLL.h"
 #include "../Implementations/ChainingBST/CombinedResizingBST.h"
 #include "../Implementations/RobinHood/CombinedResizingRH.h"
@@ -19,14 +24,14 @@
 
 #include "../HashFunctions/FNV1a.h"
 
-#include "catch.hpp"
+#include "../Dependencies/catch.hpp"
 #include "../Util/TestStatistic.h"
 #include "../Util/TestResults.h"
 #include "../Util/MemorySize.h"
 
 using namespace std;
 TEST_CASE("Insertion Stress Test", "[insert][stress]") {
-    unsigned total_insertions = 40000000;
+    unsigned total_insertions = 10000000;
     unsigned key;
     unsigned element;
     FNV1a<unsigned> hash_function = FNV1a<unsigned>();
@@ -46,7 +51,7 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
 
         test_length.start_timer();
 
-        auto table = CombinedResizingLL<unsigned,unsigned>(1000, &hash_function);
+        auto table = BasicChainingLinkedList<unsigned,unsigned>(12000000, &hash_function);
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -58,7 +63,14 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
             retcode = table.insert_element(key, element);
             REQUIRE(retcode==SUCCESS);
         }
-
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            unsigned ele;
+            key = numbers[i];
+            element = numbers[i];
+            retcode = table.get_element(key, ele);
+        }
 
         test_length.stop_timer();
     }
@@ -68,7 +80,7 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
 
         test_length.start_timer();
 
-        auto table = CombinedResizingBST<unsigned,unsigned>(1000, &hash_function);
+        auto table = BasicChainingBST<unsigned,unsigned>(12000000, &hash_function);
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -79,6 +91,14 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
             INFO("Inserting element " << i);
             retcode = table.insert_element(key, element);
             REQUIRE(retcode==SUCCESS);
+        }
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            unsigned ele;
+            key = numbers[i];
+            element = numbers[i];
+            retcode = table.get_element(key, ele);
         }
 
 
@@ -90,7 +110,7 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
 
         test_length.start_timer();
 
-        auto table = CombinedResizingRH<unsigned,unsigned>(1000, &hash_function);
+        auto table = BasicRobinHood<unsigned,unsigned>(12000000, &hash_function);
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -102,6 +122,14 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
             retcode = table.insert_element(key, element);
             REQUIRE(retcode==SUCCESS);
         }
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            unsigned ele;
+            key = numbers[i];
+            element = numbers[i];
+            retcode = table.get_element(key, ele);
+        }
 
 
         test_length.stop_timer();
@@ -110,9 +138,8 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
         test_name = "CK_INSERT_STRESS";
 
         test_length.start_timer();
-        FNV1a<unsigned> hash_function2 = FNV1a<unsigned>();
-        hash_function2.seed = 2345678901;
-        auto table = CombinedResizingCK<unsigned,unsigned>(1000, &hash_function, &hash_function2);
+        Hash<unsigned> hash_function2 = Hash<unsigned>();
+        auto table = BasicCuckoo<unsigned,unsigned>(12000000, &hash_function, &hash_function2);
 
         INFO("Inserting all elements")
         for(int i=0; i<total_insertions;++i){
@@ -123,6 +150,14 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
             INFO("Inserting element " << i);
             retcode = table.insert_element(key, element);
             REQUIRE(retcode==SUCCESS);
+        }
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            unsigned ele;
+            key = numbers[i];
+            element = numbers[i];
+            retcode = table.get_element(key, ele);
         }
 
 
@@ -141,6 +176,15 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
             key = numbers[i];
             element = numbers[i];
             table[key] = element;
+        }
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            unsigned ele;
+            key = numbers[i];
+            element = numbers[i];
+            table[key];
+
         }
 
 
@@ -161,7 +205,15 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
             element = numbers[i];
             table[key] = element;
         }
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            unsigned ele;
+            key = numbers[i];
+            element = numbers[i];
+            table[key];
 
+        }
 
         test_length.stop_timer();
     }
@@ -178,7 +230,15 @@ TEST_CASE("Insertion Stress Test", "[insert][stress]") {
             element = numbers[i];
             table[key] = element;
         }
+        INFO("Checking for all elements")
+        for(int i=0; i<total_insertions;++i){
+            int retcode;
+            unsigned ele;
+            key = numbers[i];
+            element = numbers[i];
+            table[key];
 
+        }
 
         test_length.stop_timer();
     }

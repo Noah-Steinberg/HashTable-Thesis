@@ -19,6 +19,7 @@ protected:
     vector<HashSlot<K,E>>  slots;
     int         numSlots;
     int         numElements;
+    int         resizeFactor = 5;
     Hash<K>* hash;
     virtual HashSlot<K,E>& get_slot(unsigned , K&, int&) = 0;
     virtual int resize() = 0;
